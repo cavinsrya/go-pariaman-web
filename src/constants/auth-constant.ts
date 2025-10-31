@@ -57,6 +57,20 @@ export const INITIAL_STATE_UPDATE_PASSWORD = {
   },
 };
 
+export const INITIAL_STATE_COMPLETE_PROFILE = {
+  status: "idle",
+  errors: {
+    name: [],
+    avatar_url: [],
+    _form: [],
+  },
+};
+
+export const INITIAL_COMPLETE_PROFILE_FORM = {
+  name: "",
+  avatar_url: "",
+};
+
 export const ROLE_LIST = [
   {
     value: "admin",

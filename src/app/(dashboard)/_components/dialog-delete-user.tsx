@@ -1,4 +1,4 @@
-import DialogDelete from "@/components/common/dialog-delete";
+import DialogDelete from "@/components/common/dashboard/dialog-delete";
 import { Profile } from "@/types/auth";
 import { startTransition, useActionState, useEffect } from "react";
 import { deleteUser } from "../admin/user/action";

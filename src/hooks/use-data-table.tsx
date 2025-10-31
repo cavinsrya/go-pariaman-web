@@ -2,9 +2,15 @@ import { DEFAULT_LIMIT, DEFAULT_PAGE } from "@/constants/data-table.constant";
 import { useState } from "react";
 import useDebounce from "./use-debounce";
 
-export default function useDataTable() {
+type UseDataTableProps = {
+  defaultLimit?: number;
+};
+
+export default function useDataTable(props?: UseDataTableProps) {
   const [currentPage, setCurrrentPage] = useState(DEFAULT_PAGE);
-  const [currentLimit, setCurrrentLimit] = useState(DEFAULT_LIMIT);
+  const [currentLimit, setCurrrentLimit] = useState(
+    props?.defaultLimit ?? DEFAULT_LIMIT
+  );
   const [currentSearch, setCurrentSearch] = useState("");
   const debounce = useDebounce();
 

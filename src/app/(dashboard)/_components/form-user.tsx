@@ -1,6 +1,6 @@
-import FormImage from "@/components/common/form-image";
-import FormInput from "@/components/common/form-input";
-import FormSelect from "@/components/common/form-select";
+import FormImage from "@/components/common/dashboard/form-image";
+import FormInput from "@/components/common/dashboard/form-input";
+import FormSelect from "@/components/common/dashboard/form-select";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -36,7 +36,9 @@ export default function FormUser<T extends FieldValues>({
       <DialogHeader>
         <DialogTitle>{type} User</DialogTitle>
         <DialogDescription>
-          {type === "Create" ? "Register a new user" : "Make changes user here"}
+          {type === "Create"
+            ? "Daftarkan User Baru Disini"
+            : "Update Data User Disini"}
         </DialogDescription>
       </DialogHeader>
       <form onSubmit={onSubmit} className="space-y-4">
@@ -45,7 +47,7 @@ export default function FormUser<T extends FieldValues>({
             form={form}
             name={"email" as Path<T>}
             label="Email"
-            placeholder="Insert your email here"
+            placeholder="Masukan Email disini"
             type="email"
           />
         )}
@@ -53,15 +55,15 @@ export default function FormUser<T extends FieldValues>({
           form={form}
           name={"name" as Path<T>}
           label="Name"
-          placeholder="Insert your name here"
+          placeholder="Masukan Nama Pemilik Akun"
         />
-        <FormImage
+        {/* <FormImage
           form={form}
           name={"avatar_url" as Path<T>}
           label="avatar_url"
           preview={preview}
           setPreview={setPreview}
-        />
+        /> */}
         <FormSelect
           form={form}
           name={"role" as Path<T>}

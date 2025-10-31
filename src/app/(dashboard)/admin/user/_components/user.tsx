@@ -1,7 +1,7 @@
 "use client";
 
-import DataTable from "@/components/common/data-table";
-import DropdownAction from "@/components/common/dropdown-action";
+import DataTable from "@/components/common/dashboard/data-table";
+import DropdownAction from "@/components/common/dashboard/dropdown-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

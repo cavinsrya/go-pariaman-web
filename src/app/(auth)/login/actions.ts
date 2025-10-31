@@ -65,5 +65,14 @@ export async function login(
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  if (!profile.name) {
+    redirect("/complete-profile");
+  } else if (profile.role === "admin") {
+    redirect("/admin/dashboard");
+  } else if (profile.role === "user") {
+    redirect("/user/dashboard");
+  } else {
+    console.warn(`Unknown user role: ${profile.role}. Redirecting to default.`);
+    redirect("/");
+  }
 }

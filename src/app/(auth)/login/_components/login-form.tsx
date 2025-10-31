@@ -1,15 +1,7 @@
 "use client";
 
-import FormInput from "@/components/common/form-input";
+import FormInput from "@/components/common/dashboard/form-input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   INITIAL_LOGIN_FORM,
   INITIAL_STATE_LOGIN_FORM,
@@ -21,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { login } from "../actions";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 
 export default function SignInForm() {
   const form = useForm<LoginForm>({
@@ -55,41 +48,93 @@ export default function SignInForm() {
   }, [loginState, loginAction]);
 
   return (
-    <Card className="mx-auto w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-balance text-center text-2xl font-bold">
-          Masuk
-        </CardTitle>
-        <CardDescription className="text-center">
-          Selamat Datang di dashboard UMKM Pariaman Go Digital Anda.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <form id="form-rhf-demo" onSubmit={onSubmit}>
-          <FormInput
-            form={form}
-            name="email"
-            label="Email"
-            type="email"
-            placeholder="Masukan Email Kamu"
+    <div className="py-30">
+      <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl border border-gray-200">
+        {/* Left side image (desktop only) */}
+        <div className="relative hidden lg:block lg:w-1/2 bg-cover">
+          {/* Pakai next/image agar lebih optimal, URL tetap bisa diganti */}
+          <Image
+            src="https://wfluxkclddzzzcgoioeb.supabase.co/storage/v1/object/public/images/assets/login.png"
+            alt="Login Illustration"
+            fill
+            className="object-cover"
+            priority
           />
-          <FormInput
-            form={form}
-            name="password"
-            label="Password"
-            type="password"
-            placeholder="Masukkan kata sandi"
-          />
-          <CardFooter className="flex flex-col items-stretch gap-3 mt-6 p-0">
-            <Button type="submit" className="w-full rounded-md">
-              {isPendingLogin ? <Loader2 className="animate-spin" /> : "Masuk"}
-            </Button>
-            <p className="text-center text-xs text-muted-foreground">
-              {"jika ingin terdaftar umkm silahkan hubungi contat pengelola"}
+        </div>
+
+        {/* Right side form */}
+        <div className="w-full p-8 lg:w-1/2">
+          <div className="space-y-3">
+            <div className="flex items-center justify-center">
+              <Image
+                src="https://res.cloudinary.com/dohpngcuj/image/upload/v1760430546/mainlogo_z9im0h.png"
+                alt="App Logo"
+                width={100}
+                height={80}
+                priority
+                className="h-10 w-auto"
+              />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-700 text-center">
+              UMKM Pariaman
+            </h2>
+            <p className=" text-gray-600 text-center">
+              Salamaik baliak! Silahkan Login untuk masuk ke Dashboard dan
+              kelola konten Kamu
             </p>
-          </CardFooter>
-        </form>
-      </CardContent>
-    </Card>
+          </div>
+
+          {/* Form */}
+          <form
+            id="form-rhf-login"
+            onSubmit={onSubmit}
+            className="mt-4 space-y-2"
+          >
+            <FormInput
+              form={form}
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="Masukan Email kamu"
+            />
+            <FormInput
+              form={form}
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+            />
+            <div className="pt-2">
+              <Button
+                type="submit"
+                className="w-full text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 shadow-lg shadow-teal-500/50 rounded-lg font-bold py-2 cursor-pointer"
+                disabled={isPendingLogin}
+              >
+                {isPendingLogin ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </span>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+            </div>
+          </form>
+
+          {/* Footer small link */}
+          <div className="mt-4 flex items-center justify-between">
+            <span className="border-b w-1/5 md:w-1/4" />
+            <span className="text-xs text-gray-500 uppercase">Daftar</span>
+            <span className="border-b w-1/5 md:w-1/4" />
+          </div>
+
+          <p className="mt-4 text-center text-xs text-gray-500">
+            Ingin mendaftarkan UMKM Anda? Silakan hubungi pengelola melalui
+            kontak yang tersedia
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,26 +1,21 @@
 import {
-  Album,
-  Armchair,
   LayoutDashboard,
-  RotateCcwKey,
-  SquareMenu,
   Users,
+  RotateCcwKey,
+  Store,
+  Package,
+  UsersRound,
 } from "lucide-react";
 
 export const SIDEBAR_MENU_LIST = {
   admin: [
     {
-      title: "Dashboard",
-      url: "/admin",
+      title: "Dashboard Admin",
+      url: "/admin/dashboard",
       icon: LayoutDashboard,
     },
     {
-      title: "Order",
-      url: "/order",
-      icon: Album,
-    },
-    {
-      title: "User",
+      title: "User Management",
       url: "/admin/user",
       icon: Users,
     },
@@ -30,7 +25,28 @@ export const SIDEBAR_MENU_LIST = {
       icon: RotateCcwKey,
     },
   ],
-  user: [],
+  user: [
+    {
+      title: "Dashboard User",
+      url: "/user/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "My Products",
+      url: "/user/my-products",
+      icon: Package,
+    },
+    {
+      title: "Change Password",
+      url: "/common/change-password",
+      icon: RotateCcwKey,
+    },
+    {
+      title: "My Profile",
+      url: "/user/complete-profile",
+      icon: UsersRound,
+    },
+  ],
 };
 
 export type SidebarMenuKey = keyof typeof SIDEBAR_MENU_LIST;
