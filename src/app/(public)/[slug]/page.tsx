@@ -21,13 +21,12 @@ import {
 export default async function StoreProfilePage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const data = await getStoreData(params.slug);
+  const { slug } = await params;
 
-  if (!data) {
-    notFound();
-  }
+  const data = await getStoreData(slug);
+  if (!data) notFound();
 
   const { store, products, reviews } = data;
 
