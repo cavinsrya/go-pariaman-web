@@ -110,7 +110,7 @@ export async function getStoreData(slug: string): Promise<StoreDataResult> {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, title, price, slug, product_media(media_path)")
+    .select("id, title, price, slug, product_media(media_path, media_type)")
     .eq("store_id", store.id) // ✅ sekarang store.id sudah terketik
     .eq("is_published", true)
     .returns<ProductForStore[]>();

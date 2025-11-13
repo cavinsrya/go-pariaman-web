@@ -162,22 +162,17 @@ export default async function StoreProfilePage({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {products.map((product: ProductForStore) => {
-              const firstMedia = product.product_media?.[0];
-              const image = firstMedia?.media_path;
-              const mediaType: "image" | "video" =
-                firstMedia?.media_type === "video" ? "video" : "image";
-
               return (
                 <CatalogProductCard
                   key={product.id}
                   id={product.id}
                   title={product.title}
                   price={product.price}
-                  image={image}
+                  image={product.product_media[0]?.media_path}
                   storeName={store.name}
-                  storeSlug={store.slug}
-                  location={locationString} // atau lokasi khusus produk kalau ada
-                  mediaType={mediaType}
+                  storeSlug={product.slug}
+                  location={locationString}
+                  mediaType={product.product_media?.[0]?.media_type}
                 />
               );
             })}

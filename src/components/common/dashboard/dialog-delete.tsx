@@ -30,7 +30,7 @@ export default function DialogDelete({
           <DialogHeader>
             <DialogTitle>Hapus {title}</DialogTitle>
             <DialogDescription>
-              Anda yakin untuk menghapus produk ini{" "}
+              Anda yakin untuk menghapus{" "}
               <span className="lowercase">{title}</span>
             </DialogDescription>
           </DialogHeader>
