@@ -1,15 +1,13 @@
-// Di file action.ts Anda
 "use server";
 
-import { createClient } from "@/lib/supabase/server"; // Gunakan server client
+import { createClient } from "@/lib/supabase/server"; 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// Tipe data sederhana untuk hasil query (sebaiknya definisikan lebih detail di .d.ts)
 export type FeaturedStore = {
   id: number;
   name: string;
-  slug: string; // Tambahkan slug untuk link
+  slug: string; 
   logo_url: string | null;
   description: string | null;
 };
@@ -25,7 +23,7 @@ type FeaturedProduct = {
     sub_district: { name: string | null } | null;
     village: { name: string | null } | null;
   } | null;
-  product_media: { media_path: string }[];
+  product_media: { media_path: string, media_type: "image" | "video" }[];
 };
 
 async function makeSupabase() {
@@ -47,9 +45,7 @@ async function makeSupabase() {
     }
   );
 }
-/**
- * Mengambil data UMKM unggulan (misal 8 terbaru)
- */
+
 export async function getFeaturedStores(): Promise<FeaturedStore[]> {
   const supabase = await makeSupabase();
   const { data, error } = await supabase
@@ -68,9 +64,7 @@ export async function getFeaturedStores(): Promise<FeaturedStore[]> {
   return data || [];
 }
 
-/**
- * Mengambil data Produk unggulan (misal 10 terbaru)
- */
+
 export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
   const supabase = await makeSupabase();
 
@@ -84,7 +78,7 @@ export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
         sub_district:sub_districts!stores_sub_district_id_fkey ( name ),
         village:villages!stores_village_id_fkey ( name )
       ),
-      product_media ( media_path )
+      product_media ( media_path, media_type )
     `
     )
     .eq("is_published", true)

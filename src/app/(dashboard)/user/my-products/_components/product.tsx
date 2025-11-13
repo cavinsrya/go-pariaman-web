@@ -61,8 +61,8 @@ export default function ProductsManagement() {
 
       return result;
     },
-    staleTime: 30000, // ✅ Cache for 30 seconds
-    gcTime: 300000, // ✅ Keep in cache for 5 minutes
+    staleTime: 30000,
+    gcTime: 300000,
     retry: 1,
   });
 
@@ -80,12 +80,12 @@ export default function ProductsManagement() {
       }
       return result;
     },
-    staleTime: 600000, // ✅ Categories rarely change - cache 10 minutes
-    gcTime: 3600000, // ✅ Keep for 1 hour
+    staleTime: 600000,
+    gcTime: 3600000,
     retry: 2,
   });
 
-  // ✅ Handle errors with useEffect instead of onError
+  // Handle errors with useEffect
   useEffect(() => {
     if (isErrorProducts && productsError) {
       toast.error("Gagal mengambil data produk", {
@@ -102,7 +102,7 @@ export default function ProductsManagement() {
     }
   }, [categoriesError]);
 
-  // ✅ Stable callbacks with useCallback
+  // Stable callbacks with useCallback
   const handleChangeAction = useCallback((open: boolean) => {
     if (!open) {
       setSelectedAction(null);
@@ -117,18 +117,18 @@ export default function ProductsManagement() {
     setSelectedAction({ data: product, type: "delete" });
   }, []);
 
-  // ✅ Memoized total pages calculation
+  // Memoized total pages calculation
   const totalPages = useMemo(() => {
     if (!productsResult?.count) return 0;
     return Math.ceil(productsResult.count / currentLimit);
   }, [currentLimit, productsResult?.count]);
 
-  // ✅ Memoized products data
+  // Memoized products data
   const products = useMemo(() => {
     return productsResult?.data || [];
   }, [productsResult?.data]);
 
-  // ✅ Memoized categories with fallback
+  // Memoized categories with fallback
   const categories = useMemo(() => {
     return categoriesResult || [];
   }, [categoriesResult]);
@@ -154,7 +154,7 @@ export default function ProductsManagement() {
           {/* Create Product Dialog */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-blue-900 text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 shadow-lg shadow-teal-500/50 rounded-lg font-bold py-2 cursor-pointer shrink-0">
+              <Button className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 shadow-lg shadow-teal-500/50 rounded-lg font-bold py-2 cursor-pointer shrink-0">
                 <PlusCircle className="w-4 h-4" />
                 Upload Product
               </Button>
@@ -166,7 +166,7 @@ export default function ProductsManagement() {
 
               {isLoadingCategories ? (
                 <div className="flex justify-center items-center h-40">
-                  <Loader2 className="animate-spin text-blue-900" />
+                  <Loader2 className="animate-spin text-teal-400" />
                   <span className="ml-2 text-muted-foreground">
                     Memuat kategori...
                   </span>
@@ -201,7 +201,7 @@ export default function ProductsManagement() {
           <p className="text-sm">Silakan coba lagi nanti.</p>
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {products.map((product: ProductQueryResult) => (
             <ProductCard
               key={product.id}
@@ -209,6 +209,7 @@ export default function ProductsManagement() {
               title={product.title}
               price={product.price}
               image={product.product_media?.[0]?.media_path}
+              mediaType={product.product_media?.[0]?.media_type}
               onDelete={() => handleDeleteClick(product)}
               onEdit={() => handleEditClick(product)}
             />

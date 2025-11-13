@@ -3,15 +3,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-/**
- * ✅ Fixed:
- * - Better error handling (no silent catches)
- * - Added null checks for optional parameters
- * - Consistent return types
- * - Better logging
- */
-
-// Helper to create Supabase client
 async function makeSupabase() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -113,7 +104,7 @@ export type CatalogProduct = {
     sub_districts: { name: string } | null;
     villages: { name: string } | null;
   } | null;
-  product_media: { media_path: string; media_type: string }[];
+  product_media: { media_path: string; media_type: "image" | "video" }[];
   product_categories: { category_id: number }[];
 };
 
@@ -252,8 +243,8 @@ export async function getCatalogProducts({
 
 // ==================== PRODUCT DETAIL ====================
 
-export async function getProductDetail(productId: number) {
-  console.log("Fetching product detail for ID:", productId);
+export async function getProductDetail(slug: string) {
+  console.log("Fetching product detail for slug:", slug);
   const supabase = await makeSupabase();
 
   try {
@@ -292,7 +283,7 @@ export async function getProductDetail(productId: number) {
         )
       `
       )
-      .eq("id", productId)
+      .eq("slug", slug)
       .eq("is_published", true)
       .single();
 

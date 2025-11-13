@@ -42,9 +42,7 @@ export const updateUserSchema = z.object({
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z
-      .string()
-      .min(8, "New password must be at least 8 characters"),
+    newPassword: z.string().min(1, "Password is required"),
     confirmPassword: z.string().min(1, "Confirm password is required"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -61,7 +59,7 @@ export const updateStoreProfileSchema = z.object({
   description: z
     .string()
     .min(10, "Deskripsi minimal 10 karakter")
-    .max(500, "Deskripsi maksimal 500 karakter"),
+    .max(1000, "Deskripsi maksimal 1000 karakter"),
 
   address: z
     .string()

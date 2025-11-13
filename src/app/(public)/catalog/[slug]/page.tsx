@@ -70,34 +70,29 @@ function extractName(maybeObjOrArr: unknown): string | null {
 export default async function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await params;
-  const productId = Number.parseInt(id, 10);
-  if (Number.isNaN(productId) || productId <= 0) notFound();
+  const { slug } = await params;
 
-  const product = await getProductDetail(productId);
+  const product = await getProductDetail(slug);
   if (!product) notFound();
 
-  // fire-and-forget
+  const productId = product.id;
+
   incrementProductView(productId).catch(() => {});
 
   const [relatedProducts, reviews] = await Promise.all([
     getRelatedProducts(product.store_id, productId),
     getProductReviews(productId),
   ]);
-
-  // ✅ categories aman untuk object/array
   const categories = normalizeCategories(
     product.product_categories as ProductCategoryServer[] | undefined
   );
 
-  // ✅ store bisa array/single
   const storeObj = Array.isArray(product.stores)
     ? product.stores[0]
     : product.stores ?? null;
 
-  // ✅ social links aman
   const socialLinks =
     (storeObj?.store_social_links ?? []).map(
       (l: { platform: string; url: string }) => ({
@@ -106,7 +101,6 @@ export default async function ProductDetailPage({
       })
     ) ?? [];
 
-  // ✅ villages & sub_districts bisa array/single → pakai helper extractName
   const storeForInfoCard: StoreForCard | undefined = storeObj
     ? {
         id: storeObj.id,
@@ -121,7 +115,6 @@ export default async function ProductDetailPage({
       }
     : undefined;
 
-  // ✅ related products: stores juga bisa array
   const formattedRelatedProducts = relatedProducts.map((rp) => ({
     ...rp,
     stores: Array.isArray(rp.stores) ? rp.stores[0] : rp.stores,

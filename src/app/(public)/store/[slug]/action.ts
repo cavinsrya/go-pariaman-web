@@ -13,7 +13,7 @@ export type ProductForStore = {
   price: number;
   slug: string;
   total_views?: number;
-  product_media: { media_path: string }[];
+  product_media: { media_path: string, media_type: "image" | "video" }[];
 };
 
 export type ReviewForStore = {

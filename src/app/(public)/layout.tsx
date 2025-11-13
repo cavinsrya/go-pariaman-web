@@ -1,3 +1,4 @@
+import { Footer } from "@/components/common/landing/footer";
 import Navbar01 from "@/components/common/landing/navbar";
 
 export default function PublicLayout({
@@ -8,9 +9,10 @@ export default function PublicLayout({
   return (
     <>
       <Navbar01 />
-      <main className="mx-auto w-full max-w-7xl px-4 md:px-6 py-8 bg-white">
+      <main className="mx-auto w-full max-w-7xl px-4 md:px-6 bg-white">
         {children}
       </main>
+      <Footer />
     </>
   );
 }

@@ -6,9 +6,36 @@ import { ProductFormState } from "@/types/product";
 import {
   createProductSchema,
   updateProductSchema,
+  ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_VIDEO_TYPES,
+  MAX_IMAGE_SIZE,
+  MAX_VIDEO_SIZE,
 } from "@/validations/product.validation";
 import type { ProductQueryResult } from "@/types/product";
-import { Database } from "../../../../../database.types";
+
+// Helper function to validate file
+function validateMediaFile(file: File): { valid: boolean; error?: string } {
+  const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+  const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
+
+  if (!isImage && !isVideo) {
+    return {
+      valid: false,
+      error: `Format file ${file.name} tidak didukung`,
+    };
+  }
+
+  const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+  if (file.size > maxSize) {
+    const maxSizeMB = isVideo ? 50 : 5;
+    return {
+      valid: false,
+      error: `Ukuran ${file.name} melebihi ${maxSizeMB}MB`,
+    };
+  }
+
+  return { valid: true };
+}
 
 export async function createProduct(
   prevState: ProductFormState,
@@ -19,6 +46,17 @@ export async function createProduct(
   const description = formData.get("description") as string;
   const price = formData.get("price") as string;
   const category_ids = formData.getAll("category_ids") as string[];
+
+  // Validate media files before schema validation
+  for (const file of mediaFiles) {
+    const validation = validateMediaFile(file);
+    if (!validation.valid) {
+      return {
+        status: "error",
+        errors: { _form: [validation.error || "File tidak valid"] },
+      };
+    }
+  }
 
   const validatedFields = createProductSchema.safeParse({
     title,
@@ -99,6 +137,8 @@ export async function createProduct(
     .insert(relationsToInsert);
 
   if (categoryError) {
+    // Rollback: delete product if category insert fails
+    await supabase.from("products").delete().eq("id", product.id);
     return {
       status: "error",
       errors: { _form: ["Gagal menambahkan kategori"] },
@@ -106,29 +146,60 @@ export async function createProduct(
   }
 
   // Upload media files
+  const uploadedMedia: Array<{ path: string; type: string; order: number }> = [];
+
   for (let i = 0; i < validatedFields.data.media.length; i++) {
     const file = validatedFields.data.media[i];
+    
+    // Determine media type
+    const mediaType = file.type.startsWith("video/") ? "video" : "image";
+    
+    // Upload to storage
     const { errors, data } = await uploadFile(
-      "images",
+      "images", // Consider renaming bucket to "media" or "product-media"
       `products/${product.id}`,
       file
     );
 
     if (errors || !data) {
+      // Rollback: delete uploaded files and product
+      for (const uploaded of uploadedMedia) {
+        const path = uploaded.path.split("/images/")[1];
+        if (path) await deleteFile("images", path);
+      }
+      await supabase.from("products").delete().eq("id", product.id);
+      
       return {
         status: "error",
-        errors: { _form: ["Gagal mengunggah media"] },
+        errors: { 
+          _form: [`Gagal mengunggah ${mediaType}: ${file.name}`] 
+        },
       };
     }
 
-    const mediaType = file.type.startsWith("video/") ? "video" : "image";
+    uploadedMedia.push({ path: data.url, type: mediaType, order: i });
 
-    await supabase.from("product_media").insert({
+    // Insert media record
+    const { error: mediaError } = await supabase.from("product_media").insert({
       product_id: product.id,
       media_path: data.url,
       media_type: mediaType,
       sort_order: i,
     });
+
+    if (mediaError) {
+      // Rollback
+      for (const uploaded of uploadedMedia) {
+        const path = uploaded.path.split("/images/")[1];
+        if (path) await deleteFile("images", path);
+      }
+      await supabase.from("products").delete().eq("id", product.id);
+      
+      return {
+        status: "error",
+        errors: { _form: ["Gagal menyimpan data media"] },
+      };
+    }
   }
 
   return { status: "success", errors: {} };
@@ -138,7 +209,6 @@ export async function updateProduct(
   prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  // ✅ Simplified ID validation
   const productId = parseInt(formData.get("id") as string, 10);
   if (!productId || isNaN(productId)) {
     return {
@@ -153,6 +223,17 @@ export async function updateProduct(
   const category_ids = formData.getAll("category_ids") as string[];
   const newMediaFiles = formData.getAll("media") as File[];
   const deletedMediaPaths = formData.getAll("deleted_media_paths") as string[];
+
+  // Validate new media files
+  for (const file of newMediaFiles) {
+    const validation = validateMediaFile(file);
+    if (!validation.valid) {
+      return {
+        status: "error",
+        errors: { _form: [validation.error || "File tidak valid"] },
+      };
+    }
+  }
 
   // Validate fields
   const validatedFields = updateProductSchema.safeParse({
@@ -237,6 +318,8 @@ export async function updateProduct(
     let currentSortOrder = lastMedia ? lastMedia.sort_order + 1 : 0;
 
     for (const file of newMediaFiles) {
+      const mediaType = file.type.startsWith("video/") ? "video" : "image";
+      
       const { errors, data } = await uploadFile(
         "images",
         `products/${productId}`,
@@ -246,11 +329,12 @@ export async function updateProduct(
       if (errors || !data) {
         return {
           status: "error",
-          errors: { _form: ["Gagal mengunggah media baru"] },
+          errors: { 
+            _form: [`Gagal mengunggah ${mediaType} baru: ${file.name}`] 
+          },
         };
       }
 
-      const mediaType = file.type.startsWith("video/") ? "video" : "image";
       await supabase.from("product_media").insert({
         product_id: productId,
         media_path: data.url,
@@ -267,7 +351,6 @@ export async function deleteProduct(
   prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  // ✅ Simplified validation
   const productId = parseInt(formData.get("id") as string, 10);
   if (!productId || isNaN(productId)) {
     return {

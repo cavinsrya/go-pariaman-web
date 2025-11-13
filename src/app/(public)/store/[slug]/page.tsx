@@ -17,6 +17,7 @@ import {
   type ReviewForStore,
   type StoreSocialLink,
 } from "./action";
+import CatalogProductCard from "@/app/(public)/catalog/_components/catalog-product-card";
 
 export default async function StoreProfilePage({
   params,
@@ -30,7 +31,7 @@ export default async function StoreProfilePage({
 
   const { store, products, reviews } = data;
 
-  const owner = store.users; // bisa null
+  const owner = store.users;
   const villageName = store.villages?.name ?? undefined;
   const subDistrictName = store.sub_districts?.name ?? undefined;
   const districtName = store.districts?.name ?? undefined;
@@ -160,43 +161,26 @@ export default async function StoreProfilePage({
           <p className="text-muted-foreground">Belum ada produk</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {products.map((product: ProductForStore) => (
-              <Card
-                key={product.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="p-0">
-                  <div className="relative w-full aspect-square bg-gray-200">
-                    {product.product_media?.[0]?.media_path && (
-                      <Image
-                        src={
-                          product.product_media[0].media_path ||
-                          "/placeholder.svg"
-                        }
-                        alt={product.title}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                </CardContent>
-                <div className="p-4">
-                  <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                    {product.title}
-                  </h3>
-                  <p className="text-base font-bold text-primary mb-3">
-                    Rp {product.price.toLocaleString("id-ID")}
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                    asChild
-                  >
-                    <a href={`/catalog/${product.id}`}>Lihat Detail</a>
-                  </Button>
-                </div>
-              </Card>
-            ))}
+            {products.map((product: ProductForStore) => {
+              const firstMedia = product.product_media?.[0];
+              const image = firstMedia?.media_path;
+              const mediaType: "image" | "video" =
+                firstMedia?.media_type === "video" ? "video" : "image";
+
+              return (
+                <CatalogProductCard
+                  key={product.id}
+                  id={product.id}
+                  title={product.title}
+                  price={product.price}
+                  image={image}
+                  storeName={store.name}
+                  storeSlug={store.slug}
+                  location={locationString} // atau lokasi khusus produk kalau ada
+                  mediaType={mediaType}
+                />
+              );
+            })}
           </div>
         )}
       </div>

@@ -128,7 +128,7 @@ export default function StoresTable() {
         store.phone || "-",
         store.address ? store.address.substring(0, 50) + "..." : "-",
         <DropdownAction
-          key={store.id} // Added key prop
+          key={store.slug} // Added key prop
           menu={[
             {
               label: (
@@ -138,7 +138,7 @@ export default function StoresTable() {
                 </span>
               ),
               action: () => {
-                window.open(`/store/${store.id}`, "_blank");
+                window.open(`/store/${store.slug}`, "_blank");
               },
             },
             {

@@ -55,7 +55,10 @@ export default function InfoSection() {
                 <span className="text-sm md:text-xs">
                   Ingin Tahu Lebih Banyak?
                 </span>
-                <Button size="sm" className="rounded-full px-4 md:text-xs">
+                <Button
+                  size="sm"
+                  className="rounded-full px-4 md:text-xs bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br cursor-pointer"
+                >
                   Hubungi Kami
                 </Button>
               </div>

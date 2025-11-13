@@ -3,16 +3,18 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Store } from "lucide-react";
+import { MapPin, Store, Video } from "lucide-react";
 
 interface CatalogProductCardProps {
   id: number;
   title: string;
   price: number;
   image?: string;
+  imgAlt?: string;
   storeName: string;
   storeSlug: string;
   location: string;
+  mediaType?: "image" | "video";
 }
 
 export default function CatalogProductCard({
@@ -21,33 +23,58 @@ export default function CatalogProductCard({
   price,
   image,
   storeName,
+  imgAlt = "Gambar Produk",
   storeSlug,
   location,
+  mediaType = "image",
 }: CatalogProductCardProps) {
+  const isVideo = mediaType === "video" && image; // ✅ Only video if we have image URL
+
   return (
-    <Link href={`/catalog/${id}`} className="block h-full">
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col p-0 cursor-pointer hover:ring-2 hover:ring-primary/20">
-        <CardContent className="p-0">
-          <div className="relative w-full aspect-[4/3] bg-gray-200">
-            {image ? (
+    <Link href={`/catalog/${storeSlug}`} className="block h-full">
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col p-0 cursor-pointer hover:ring-2 hover:ring-primary/20 group">
+        <CardContent className="p-0 relative">
+          <div className="relative aspect-square w-full bg-muted">
+            {!image ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">No Image</span>
+              </div>
+            ) : isVideo ? (
+              <>
+                <video
+                  src={image}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.pause();
+                    e.currentTarget.currentTime = 0;
+                  }}
+                />
+                <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] sm:text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Video className="w-3 h-3" />
+                  Video
+                </div>
+              </>
+            ) : (
               <Image
                 src={image}
-                alt={title}
+                alt={imgAlt}
                 fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover"
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
               />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                No Image
-              </div>
             )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 p-4 flex-1">
           <div className="w-full flex-1">
-            <h3 className="font-semibold text-sm line-clamp-2 mb-2 hover:text-primary transition-colors">
+            <h3 className="font-semibold text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">
               {title}
             </h3>
 

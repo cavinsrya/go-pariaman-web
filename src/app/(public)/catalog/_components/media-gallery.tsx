@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MediaItem {
@@ -17,6 +17,8 @@ interface MediaGalleryProps {
 
 export default function MediaGallery({ media }: MediaGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   if (!media || media.length === 0) {
     return (
@@ -32,13 +34,29 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? sortedMedia.length - 1 : prev - 1));
+    setIsPlaying(false);
   };
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === sortedMedia.length - 1 ? 0 : prev + 1));
+    setIsPlaying(false);
   };
 
-  // ✅ Keyboard navigation
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleVideoPlay = () => setIsPlaying(true);
+  const handleVideoPause = () => setIsPlaying(false);
+
+  // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowLeft") {
       handlePrev();
@@ -52,28 +70,51 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
       {/* Main Media Display */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl ring-1 ring-border">
         {isVideo ? (
-          <video
-            src={currentMedia.media_path}
-            className="w-full h-full object-cover"
-            controls
-            preload="metadata"
-          />
+          <>
+            <video
+              ref={videoRef}
+              src={currentMedia.media_path}
+              className="w-full h-full object-cover"
+              preload="metadata"
+              playsInline
+              onPlay={handleVideoPlay}
+              onPause={handleVideoPause}
+              onEnded={handleVideoPause}
+            />
+
+            {/* Play/Pause Button Overlay - Hide when playing */}
+            {!isPlaying && (
+              <button
+                onClick={handlePlayPause}
+                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors cursor-pointer group"
+                aria-label="Play video"
+              >
+                <div className="bg-white/90 rounded-full p-4 group-hover:bg-white transition-colors">
+                  <Play className="w-12 h-12 text-gray-900 fill-gray-900" />
+                </div>
+              </button>
+            )}
+
+            {/* Pause Button - Show when playing */}
+            {isPlaying && (
+              <button
+                onClick={handlePlayPause}
+                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 rounded-full p-2 transition-colors"
+                aria-label="Pause video"
+              >
+                <Pause className="w-6 h-6 text-white fill-white" />
+              </button>
+            )}
+          </>
         ) : (
           <Image
             src={currentMedia.media_path}
             alt={`Product media ${currentIndex + 1}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
-            priority={currentIndex === 0} // ✅ Priority for first image
+            priority={currentIndex === 0}
             className="object-cover"
           />
-        )}
-
-        {/* Play Button Overlay for Video */}
-        {isVideo && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-            <Play className="w-16 h-16 text-white fill-white" />
-          </div>
         )}
 
         {/* Navigation Arrows */}
@@ -82,7 +123,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg z-10"
               onClick={handlePrev}
               aria-label="Previous media"
             >
@@ -91,7 +132,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg z-10"
               onClick={handleNext}
               aria-label="Next media"
             >
@@ -99,7 +140,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
             </Button>
 
             {/* Media Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1 rounded-full z-10">
               {currentIndex + 1} / {sortedMedia.length}
             </div>
           </>
@@ -112,7 +153,10 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
           {sortedMedia.map((item, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                setCurrentIndex(index);
+                setIsPlaying(false);
+              }}
               className={`relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all hover:scale-105 ${
                 index === currentIndex
                   ? "border-primary ring-2 ring-primary/20"
@@ -121,8 +165,16 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               aria-label={`View media ${index + 1}`}
             >
               {item.media_type === "video" ? (
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-white fill-white" />
+                <div className="relative w-full h-full">
+                  <video
+                    src={item.media_path}
+                    className="w-full h-full object-cover"
+                    preload="metadata"
+                    muted
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <Play className="w-6 h-6 text-white fill-white" />
+                  </div>
                 </div>
               ) : (
                 <Image

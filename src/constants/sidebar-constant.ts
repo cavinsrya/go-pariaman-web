@@ -21,7 +21,7 @@ export const SIDEBAR_MENU_LIST = {
     },
     {
       title: "Change Password",
-      url: "/admin/change-password",
+      url: "/common/change-password",
       icon: RotateCcwKey,
     },
   ],

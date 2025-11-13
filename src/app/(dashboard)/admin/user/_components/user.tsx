@@ -120,9 +120,9 @@ export default function UserManagement() {
           />
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-blue-900 text-white cursor-pointer hover:bg-purple-900/70">
+              <Button className="bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br text-white cursor-pointer hover:bg-purple-900/70">
                 <UserRoundPlus />
-                Create User
+                Tambah User
               </Button>
             </DialogTrigger>
             <DialogCreateUser refetch={refetch} />

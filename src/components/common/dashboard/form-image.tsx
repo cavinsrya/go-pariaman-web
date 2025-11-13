@@ -36,22 +36,20 @@ export default function FormImage<T extends FieldValues>({
 
     if (!file) return;
 
-    // ✅ Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("File tidak valid", {
         description: "Hanya file gambar yang diperbolehkan (JPG, PNG, dll)",
       });
-      e.target.value = ""; // Reset input
+      e.target.value = "";
       return;
     }
 
-    // ✅ Validate file size (2MB max)
     if (file.size > MAX_FILE_SIZE) {
       const fileSize = formatFileSize(file.size);
       toast.error("Ukuran file terlalu besar", {
         description: `File Anda ${fileSize}. Maksimal ukuran file adalah 2 MB.`,
       });
-      e.target.value = ""; // Reset input
+      e.target.value = "";
       return;
     }
 
@@ -89,7 +87,7 @@ export default function FormImage<T extends FieldValues>({
 
       <div
         className={`relative border-2 border-dashed rounded-lg overflow-hidden ${
-          type === "cover" ? "aspect-video" : "aspect-square"
+          type === "cover" ? "aspect-[2/1]" : "aspect-square"
         } ${
           preview?.displayUrl
             ? "border-primary"

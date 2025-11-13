@@ -28,7 +28,7 @@ export default function StoreInfoCard({ store }: StoreInfoCardProps) {
     store.village_name || store.sub_district_name || "Kota Pariaman";
 
   return (
-    <Card className="w-full">
+    <Card className="w-full p-0">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Store Logo */}
@@ -58,8 +58,12 @@ export default function StoreInfoCard({ store }: StoreInfoCardProps) {
           </div>
 
           {/* Visit Profile Button */}
-          <Link href={`/store/${store.slug}`}>
-            <Button variant="outline" size="sm" className="flex-shrink-0">
+          <Link href={`/store/${store.slug}`} className="self-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 cursor-pointer"
+            >
               Kunjungi Toko
             </Button>
           </Link>

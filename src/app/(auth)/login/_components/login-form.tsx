@@ -7,13 +7,14 @@ import {
   INITIAL_STATE_LOGIN_FORM,
 } from "@/constants/auth-constant";
 import { LoginForm, loginSchemaForm } from "@/validations/auth.validation";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { startTransition, useActionState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { login } from "../actions";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function SignInForm() {
   const form = useForm<LoginForm>({
@@ -50,9 +51,7 @@ export default function SignInForm() {
   return (
     <div className="py-30">
       <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl border border-gray-200">
-        {/* Left side image (desktop only) */}
         <div className="relative hidden lg:block lg:w-1/2 bg-cover">
-          {/* Pakai next/image agar lebih optimal, URL tetap bisa diganti */}
           <Image
             src="https://wfluxkclddzzzcgoioeb.supabase.co/storage/v1/object/public/images/assets/login.png"
             alt="Login Illustration"
@@ -65,7 +64,22 @@ export default function SignInForm() {
         {/* Right side form */}
         <div className="w-full p-8 lg:w-1/2">
           <div className="space-y-3">
-            <div className="flex items-center justify-center">
+            {/* Header: tombol kembali kiri, logo tetap di tengah */}
+            <div className="relative flex items-center justify-center">
+              <div className="absolute left-0">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1 px-0 text-sm text-gray-600 hover:text-gray-800"
+                >
+                  <Link href="/">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Kembali</span>
+                  </Link>
+                </Button>
+              </div>
+
               <Image
                 src="https://res.cloudinary.com/dohpngcuj/image/upload/v1760430546/mainlogo_z9im0h.png"
                 alt="App Logo"
@@ -75,10 +89,11 @@ export default function SignInForm() {
                 className="h-10 w-auto"
               />
             </div>
+
             <h2 className="text-2xl font-bold text-gray-700 text-center">
               UMKM Pariaman
             </h2>
-            <p className=" text-gray-600 text-center">
+            <p className="text-gray-600 text-center">
               Salamaik baliak! Silahkan Login untuk masuk ke Dashboard dan
               kelola konten Kamu
             </p>

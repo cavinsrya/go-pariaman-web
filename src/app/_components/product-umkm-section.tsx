@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { ImageMedia } from "@/config/content-img";
 import { img } from "@/lib/img";
+import Link from "next/link";
 
 interface ProdukUmkmSectionProps {
   products?: Array<{
@@ -20,7 +21,7 @@ interface ProdukUmkmSectionProps {
       sub_district: { name: string | null } | null;
       village: { name: string | null } | null;
     } | null;
-    product_media: { media_path: string }[];
+    product_media: { media_path: string; media_type: "image" | "video" }[];
   }>;
 }
 
@@ -116,6 +117,7 @@ export default function ProdukUmkmSection({
                           >
                             <ProductCard
                               image={product.product_media?.[0]?.media_path}
+                              mediaType={product.product_media?.[0]?.media_type}
                               title={product.title}
                               store={storeName}
                               location={locationName}
@@ -131,12 +133,14 @@ export default function ProdukUmkmSection({
                 </div>
 
                 <div className="mt-8 flex justify-center">
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 shadow-md hover:shadow-lg transition-all"
-                  >
-                    Lihat Semua Katalog
-                  </Button>
+                  <Link href="/catalog">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br font-semibold px-8 shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      Lihat Semua Katalog
+                    </Button>
+                  </Link>
                 </div>
               </>
             )}

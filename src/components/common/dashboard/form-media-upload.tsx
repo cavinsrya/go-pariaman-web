@@ -1,186 +1,248 @@
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ExistingMedia } from "@/types/product";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_VIDEO_TYPES,
+  MAX_IMAGE_SIZE,
+  MAX_VIDEO_SIZE,
+} from "@/validations/product.validation";
+import { ImagePlus, X, Video, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { Upload, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-// Impor tipe ExistingMedia dari file .d.ts Anda
-import type { ExistingMedia } from "@/types/product";
 
-// Tentukan props untuk komponen baru
 interface FormMediaUploadProps {
-  label: string;
+  label?: string;
   maxFiles?: number;
   existingMedia?: ExistingMedia[];
   onDeleteExistingMedia?: (mediaPath: string) => void;
-  onFilesChange: (files: File[]) => void; // Melaporkan file baru ke induk
+  onFilesChange?: (files: File[]) => void;
 }
 
 export default function FormMediaUpload({
-  label,
-  maxFiles = 5, // Atur default di sini
+  label = "Media Upload",
+  maxFiles = 5,
   existingMedia = [],
   onDeleteExistingMedia,
-  onFilesChange, // Terima prop ini
+  onFilesChange,
 }: FormMediaUploadProps) {
-  // --- State Internal ---
-  // Komponen ini sekarang mengelola file baru & pratinjaunya sendiri
-  const [newFiles, setNewFiles] = useState<File[]>([]);
-  const [newPreviews, setNewPreviews] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- State Turunan ---
-  const currentMediaCount = existingMedia.length + newFiles.length;
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      const totalFiles =
+        existingMedia.length + selectedFiles.length + files.length;
 
-  // --- Logika Internal: Tambah File ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-
-    // Filter file valid (termasuk toast)
-    const validFiles = files.filter((file) => {
-      const isValidType =
-        file.type.startsWith("image/") || file.type.startsWith("video/");
-      const isSmall = file.size <= 10 * 1024 * 1024; // 10MB
-
-      if (!isValidType) {
-        toast.error(`File "${file.name}" ditolak`, {
-          description: "Hanya file gambar atau video yang diizinkan.",
-        });
-        return false;
+      if (totalFiles > maxFiles) {
+        toast.error(`Maksimal ${maxFiles} file media`);
+        return;
       }
-      if (!isSmall) {
-        toast.error(`File "${file.name}" ditolak`, {
-          description: "Ukuran file terlalu besar (maksimal 10MB).",
-        });
-        return false;
-      }
-      return true;
-    });
 
-    // Cek batas file
-    const remainingSlots = maxFiles - currentMediaCount;
-    if (validFiles.length > remainingSlots) {
-      toast.error(`Maksimal ${maxFiles} file media`, {
-        description: `Anda hanya bisa menambah ${remainingSlots} file lagi.`,
-      });
-      validFiles.splice(remainingSlots); // Hanya ambil file yang muat
-    }
+      // Validate each file
+      const validFiles: File[] = [];
+      const newPreviewUrls: string[] = [];
 
-    if (validFiles.length === 0) return;
+      for (const file of files) {
+        const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+        const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
 
-    // Perbarui state internal
-    const updatedNewFiles = [...newFiles, ...validFiles];
-    setNewFiles(updatedNewFiles);
-
-    // --- Laporkan perubahan ke Induk ---
-    onFilesChange(updatedNewFiles);
-
-    // Buat pratinjau
-    const filePreviews: string[] = [];
-    let filesProcessed = 0;
-    validFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        filePreviews.push(reader.result as string);
-        filesProcessed++;
-        if (filesProcessed === validFiles.length) {
-          setNewPreviews((prev) => [...prev, ...filePreviews]);
+        if (!isImage && !isVideo) {
+          toast.error(`${file.name}: Format tidak didukung`);
+          continue;
         }
-      };
-      reader.readAsDataURL(file);
-    });
+
+        const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+        if (file.size > maxSize) {
+          const maxSizeMB = isVideo ? 50 : 5;
+          toast.error(`${file.name}: Ukuran maksimal ${maxSizeMB}MB`);
+          continue;
+        }
+
+        validFiles.push(file);
+        newPreviewUrls.push(URL.createObjectURL(file));
+      }
+
+      if (validFiles.length > 0) {
+        const updatedFiles = [...selectedFiles, ...validFiles];
+        const updatedPreviews = [...previewUrls, ...newPreviewUrls];
+
+        setSelectedFiles(updatedFiles);
+        setPreviewUrls(updatedPreviews);
+        onFilesChange?.(updatedFiles);
+      }
+
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    [selectedFiles, previewUrls, existingMedia.length, maxFiles, onFilesChange]
+  );
+
+  const handleRemoveFile = useCallback(
+    (index: number) => {
+      const updatedFiles = selectedFiles.filter((_, i) => i !== index);
+      const updatedPreviews = previewUrls.filter((_, i) => i !== index);
+
+      // Revoke object URL to prevent memory leak
+      URL.revokeObjectURL(previewUrls[index]);
+
+      setSelectedFiles(updatedFiles);
+      setPreviewUrls(updatedPreviews);
+      onFilesChange?.(updatedFiles);
+    },
+    [selectedFiles, previewUrls, onFilesChange]
+  );
+
+  const handleRemoveExisting = useCallback(
+    (mediaPath: string) => {
+      onDeleteExistingMedia?.(mediaPath);
+    },
+    [onDeleteExistingMedia]
+  );
+
+  const getFileType = (file: File): "image" | "video" => {
+    return file.type.startsWith("video/") ? "video" : "image";
   };
 
-  // --- Logika Internal: Hapus File Baru ---
-  const removeNewFile = (index: number) => {
-    const updatedNewFiles = newFiles.filter((_, i) => i !== index);
-    setNewFiles(updatedNewFiles);
+  const remainingSlots = maxFiles - existingMedia.length - selectedFiles.length;
+  const acceptedTypes = [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES].join(
+    ","
+  );
 
-    // --- Laporkan perubahan ke Induk ---
-    onFilesChange(updatedNewFiles);
-
-    const updatedNewPreviews = newPreviews.filter((_, i) => i !== index);
-    setNewPreviews(updatedNewPreviews);
-  };
-
-  // --- Logika Internal: Hapus File Lama ---
-  const removeExistingFile = (path: string) => {
-    // Cukup panggil prop dari induk
-    onDeleteExistingMedia?.(path);
-  };
-
-  // --- JSX (Kode Anda sebelumnya, sekarang ada di sini) ---
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">
-        {label} - {currentMediaCount} / {maxFiles} file
-      </label>
+    <div className="space-y-3">
+      <Label className="text-sm font-medium">{label}</Label>
 
-      {/* 1. Tampilkan media yang SUDAH ADA */}
-      {existingMedia.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+      {/* File Input Button */}
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={remainingSlots <= 0}
+          className="w-full sm:w-auto"
+        >
+          <ImagePlus className="w-4 h-4 mr-2" />
+          Pilih Gambar/Video
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          {remainingSlots} / {maxFiles} slot tersisa
+        </span>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptedTypes}
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
+      {/* Info */}
+      <p className="text-xs text-muted-foreground">
+        Format: JPG, PNG, WebP, GIF (max 5MB) | MP4, WebM, OGG, MOV (max 50MB)
+      </p>
+
+      {/* Preview Grid */}
+      {(existingMedia.length > 0 || selectedFiles.length > 0) && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {/* Existing Media */}
           {existingMedia.map((media) => (
-            <div key={media.id || media.media_path} className="relative group">
-              <Image
-                src={media.media_path || "/placeholder.svg"}
-                alt="Media yang ada"
-                width={100}
-                height={100}
-                className="w-full h-24 object-cover rounded-lg"
-              />
-              <button
+            <div key={media.media_path} className="relative group">
+              <div className="aspect-square rounded-lg overflow-hidden bg-muted border">
+                {media.media_type === "video" ? (
+                  <div className="relative w-full h-full">
+                    <video
+                      src={media.media_path}
+                      className="w-full h-full object-cover"
+                      muted
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Video className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                ) : (
+                  <Image
+                    src={media.media_path}
+                    alt="Product media"
+                    fill
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              <Button
                 type="button"
-                onClick={() => removeExistingFile(media.media_path)}
-                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                variant="destructive"
+                size="icon"
+                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => handleRemoveExisting(media.media_path)}
               >
-                <X className="w-4 h-4" />
-              </button>
+                <X className="h-3 w-3" />
+              </Button>
+              <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                {media.media_type === "video" ? (
+                  <Video className="w-3 h-3" />
+                ) : (
+                  <ImageIcon className="w-3 h-3" />
+                )}
+              </div>
             </div>
           ))}
-        </div>
-      )}
 
-      {/* 2. Tampilkan pratinjau media BARU */}
-      {newPreviews.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
-          {newPreviews.map((preview, index) => (
-            <div key={index} className="relative group">
-              <Image
-                src={preview}
-                alt={`Preview ${index}`}
-                width={100}
-                height={100}
-                className="w-full h-24 object-cover rounded-lg"
-              />
-              <button
-                type="button"
-                onClick={() => removeNewFile(index)}
-                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 3. Tampilkan Input File jika belum penuh */}
-      {currentMediaCount < maxFiles && (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition">
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            className="hidden"
-            id="media-input"
-          />
-          <label htmlFor="media-input" className="cursor-pointer">
-            <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-sm text-gray-600">
-              Klik untuk tambah media (Sisa {maxFiles - currentMediaCount})
-            </p>
-            <p className="text-xs text-gray-500 mt-1">Maks 10MB per file</p>
-          </label>
+          {/* New Files Preview */}
+          {selectedFiles.map((file, index) => {
+            const fileType = getFileType(file);
+            return (
+              <div key={index} className="relative group">
+                <div className="aspect-square rounded-lg overflow-hidden bg-muted border">
+                  {fileType === "video" ? (
+                    <div className="relative w-full h-full">
+                      <video
+                        src={previewUrls[index]}
+                        className="w-full h-full object-cover"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <Video className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src={previewUrls[index]}
+                      alt={`Preview ${index + 1}`}
+                      fill
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleRemoveFile(index)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+                <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded flex items-center gap-1">
+                  {fileType === "video" ? (
+                    <Video className="w-3 h-3" />
+                  ) : (
+                    <ImageIcon className="w-3 h-3" />
+                  )}
+                  <span className="truncate max-w-[80px]">{file.name}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

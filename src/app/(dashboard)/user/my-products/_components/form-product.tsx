@@ -98,7 +98,7 @@ function FormProduct<T extends FieldValues>({
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full flex-1 bg-blue-900 text-white font-bold cursor-pointer hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex-1 bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br text-white font-bold cursor-pointer hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>

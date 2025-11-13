@@ -187,8 +187,9 @@ export default function CatalogPage() {
                       title={product.title}
                       price={product.price}
                       image={product.product_media[0]?.media_path}
+                      mediaType={product.product_media?.[0]?.media_type}
                       storeName={product.stores?.name ?? "Nama Toko"}
-                      storeSlug={product.stores?.slug ?? "#"}
+                      storeSlug={product.slug ?? "#"}
                       location={getLocationDisplay(product)}
                     />
                   ))}

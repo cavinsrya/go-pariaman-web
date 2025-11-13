@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { MapPin, Store } from "lucide-react";
+import { MapPin, Store, Video } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 import type React from "react";
 import Link from "next/link";
@@ -15,6 +15,7 @@ type ProductCardProps = {
   imgAlt?: string;
   slug: string;
   storeSlug?: string;
+  mediaType?: "image" | "video";
 };
 
 const InfoRow = ({
@@ -44,8 +45,9 @@ export default function ProductCard({
   imgAlt = "Gambar Produk",
   slug,
   storeSlug,
+  mediaType = "image",
 }: ProductCardProps) {
-  const finalImageUrl = image || "/placeholder.svg?height=400&width=400";
+  const isVideo = mediaType === "video" && image; // ✅ ADDED
 
   return (
     <Link href={`/catalog/${slug}`} className="block group h-full">
@@ -58,13 +60,39 @@ export default function ProductCard({
       >
         <CardContent className="p-0 relative overflow-hidden">
           <div className="relative aspect-square w-full bg-muted">
-            <Image
-              src={finalImageUrl || "/placeholder.svg"}
-              alt={imgAlt}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
-            />
+            {!image ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">No Image</span>
+              </div>
+            ) : isVideo ? (
+              <>
+                <video
+                  src={image}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.pause();
+                    e.currentTarget.currentTime = 0;
+                  }}
+                />
+                <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] sm:text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Video className="w-3 h-3" />
+                  Video
+                </div>
+              </>
+            ) : (
+              <Image
+                src={image}
+                alt={imgAlt}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         </CardContent>

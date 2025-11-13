@@ -37,13 +37,6 @@ import StoreLocationSection from "./store-location-section";
 import StoreSocialSection from "./store-social-section";
 import type { CompleteProfileFormState } from "@/types/auth";
 
-/**
- * ✅ Fixed:
- * - Added isFormReady state to wait for form initialization
- * - Delayed location component render until form is populated
- * - Better synchronization between parent and child
- */
-
 interface StoreProfileFormProps {
   userData: UserData;
   storeData: StoreData;
@@ -78,7 +71,7 @@ export default function StoreProfileForm({
     INITIAL_STATE_COMPLETE_PROFILE_USER
   );
 
-  // ✅ NEW: Track form initialization status
+  // Track form initialization status
   const [isFormReady, setIsFormReady] = useState(false);
 
   // Image previews
@@ -100,7 +93,7 @@ export default function StoreProfileForm({
       : undefined
   );
 
-  // ✅ Effect 1: Initialize form data
+  // Initialize form data
   useEffect(() => {
     if (storeData && userData) {
       console.log("🔄 Initializing form with data:", {
@@ -239,7 +232,7 @@ export default function StoreProfileForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <FormImage
               form={form}
               name="avatar_url"
@@ -278,7 +271,7 @@ export default function StoreProfileForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 pt-4">
               <Label htmlFor="ownerName">Owner Name</Label>
               <Input
                 id="ownerName"
@@ -353,7 +346,7 @@ export default function StoreProfileForm({
             <Button
               type="submit"
               disabled={isPending || !isFormReady}
-              className="w-64"
+              className="w-64 cursor-pointer"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? "Menyimpan..." : "Simpan Profil Toko"}
