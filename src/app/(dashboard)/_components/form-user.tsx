@@ -57,13 +57,6 @@ export default function FormUser<T extends FieldValues>({
           label="Name"
           placeholder="Masukan Nama Pemilik Akun"
         />
-        {/* <FormImage
-          form={form}
-          name={"avatar_url" as Path<T>}
-          label="avatar_url"
-          preview={preview}
-          setPreview={setPreview}
-        /> */}
         <FormSelect
           form={form}
           name={"role" as Path<T>}

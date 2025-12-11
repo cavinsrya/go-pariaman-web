@@ -58,7 +58,6 @@ export function ChangePasswordForm() {
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
-          {/* Current Password */}
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Password Saat Ini</Label>
             <div className="relative">
@@ -92,7 +91,6 @@ export function ChangePasswordForm() {
             )}
           </div>
 
-          {/* New Password */}
           <div className="space-y-2">
             <Label htmlFor="newPassword">Password Baru</Label>
             <div className="relative">
@@ -127,7 +125,6 @@ export function ChangePasswordForm() {
             )}
           </div>
 
-          {/* Repeat New Password */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Ulangi Password Baru</Label>
             <div className="relative">
@@ -141,7 +138,6 @@ export function ChangePasswordForm() {
                 className={`h-11 rounded-xl pr-10 ${isMatch ? "pr-12" : ""}`}
                 onChange={(e) => setRepPwd(e.target.value)}
               />
-              {/* eye toggler */}
               <button
                 type="button"
                 onClick={() => setShowRep((s) => !s)}
@@ -156,7 +152,6 @@ export function ChangePasswordForm() {
                 )}
               </button>
 
-              {/* green check when match */}
               {isMatch && (
                 <CheckCircle2
                   className="absolute right-10 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-500"
@@ -171,7 +166,6 @@ export function ChangePasswordForm() {
             )}
           </div>
 
-          {/* Form Error (server) */}
           {state.errors?._form?.length ? (
             <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3">
               <p className="text-sm text-destructive">
@@ -180,7 +174,6 @@ export function ChangePasswordForm() {
             </div>
           ) : null}
 
-          {/* Submit */}
           <Button
             type="submit"
             disabled={isPending}

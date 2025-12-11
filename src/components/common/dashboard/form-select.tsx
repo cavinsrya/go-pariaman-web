@@ -37,7 +37,6 @@ export default function FormSelect<T extends FieldValues>({
       name={name}
       disabled={disabled}
       render={({ field, fieldState }) => {
-        // pastikan selalu string (bukan undefined/number)
         const currentValue = field.value == null ? "" : String(field.value);
 
         return (
@@ -49,7 +48,7 @@ export default function FormSelect<T extends FieldValues>({
                 value={currentValue}
                 onValueChange={(v) => {
                   field.onChange(v);
-                  field.onBlur(); // tandai touched
+                  field.onBlur();
                 }}
                 disabled={disabled}
               >
@@ -67,7 +66,7 @@ export default function FormSelect<T extends FieldValues>({
                     {selectItem.map((item) => (
                       <SelectItem
                         key={String(item.value)}
-                        value={String(item.value)} // <- string selalu
+                        value={String(item.value)}
                         disabled={item.disabled}
                         className="capitalize"
                       >

@@ -3,6 +3,10 @@ import { getDistricts } from "@/actions/store-action";
 import StoreProfileForm from "./_components/complete-profile";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "UMKM | Complete Profile",
+};
+
 export default async function CompleteProfilePage() {
   const profileData = await getStoreProfileData();
   const districts = await getDistricts();

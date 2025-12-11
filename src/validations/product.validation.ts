@@ -1,8 +1,7 @@
 import z from "zod";
 
-// Constants for file validation
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; 
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; 
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -14,10 +13,9 @@ const ACCEPTED_VIDEO_TYPES = [
   "video/mp4",
   "video/webm",
   "video/ogg",
-  "video/quicktime", // .mov
+  "video/quicktime", 
 ];
 
-// Custom file validator
 const fileValidator = z.instanceof(File)
   .refine(
     (file) => {
@@ -84,6 +82,4 @@ export const updateProductSchema = z.object({
 
 export type CreateProductForm = z.infer<typeof createProductSchema>;
 export type UpdateProductForm = z.infer<typeof updateProductSchema>;
-
-// Export constants for use in components
 export { MAX_IMAGE_SIZE, MAX_VIDEO_SIZE, ACCEPTED_IMAGE_TYPES, ACCEPTED_VIDEO_TYPES };

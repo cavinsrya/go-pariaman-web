@@ -58,7 +58,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
           description: "Ulasan Anda akan ditampilkan setelah disetujui.",
         });
 
-        // Reset form
         setFormData({
           reviewerName: "",
           jobTitle: "",
@@ -89,7 +88,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
     <Card>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Rating Input */}
           <div className="space-y-2">
             <Label>Rating</Label>
             <div className="flex gap-1">
@@ -113,7 +111,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             </div>
           </div>
 
-          {/* Reviewer Name */}
           <div className="space-y-2">
             <Label htmlFor="reviewerName">
               Nama <span className="text-destructive">*</span>
@@ -129,7 +126,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          {/* Job Title (Optional) */}
           <div className="space-y-2">
             <Label htmlFor="jobTitle">Pekerjaan (Opsional)</Label>
             <Input
@@ -142,7 +138,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          {/* Review Title */}
           <div className="space-y-2">
             <Label htmlFor="title">
               Judul Ulasan <span className="text-destructive">*</span>
@@ -158,7 +153,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          {/* Review Body */}
           <div className="space-y-2">
             <Label htmlFor="body">
               Ulasan <span className="text-destructive">*</span>
@@ -175,7 +169,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          {/* Submit Button */}
           <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? (
               <>

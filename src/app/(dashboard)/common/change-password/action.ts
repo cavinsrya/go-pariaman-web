@@ -27,7 +27,6 @@ export async function changePassword(
 
   const supabase = await createClient();
 
-  // Get current user
   const {
     data: { user },
     error: userError,
@@ -43,7 +42,6 @@ export async function changePassword(
     };
   }
 
-  // Verify current password by attempting to sign in
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email!,
     password: validatedFields.data.currentPassword,
@@ -59,7 +57,6 @@ export async function changePassword(
     };
   }
 
-  // Update password
   const { error: updateError } = await supabase.auth.updateUser({
     password: validatedFields.data.newPassword,
   });

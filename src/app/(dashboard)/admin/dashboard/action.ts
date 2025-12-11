@@ -15,7 +15,6 @@ export type StoreTableRow = {
   sub_district_id?: number | null;
   village_id?: number | null;
 
-  // Tentukan sebagai OBJEK TUNGGAL (atau null), BUKAN ARRAY
   users?: { name: string; avatar_url: string | null } | null;
   sub_districts?: { name: string } | null;
   villages?: { name: string } | null;
@@ -25,17 +24,6 @@ export type StoreTableRow = {
   }>;
 };
 
-type RawStoreDetail = Omit<
-  StoreTableRow,
-  "users" | "sub_districts" | "villages"
-> & {
-  users: { name: string; avatar_url: string | null }[] | null;
-  sub_districts: { name: string }[] | null;
-  villages: { name: string }[] | null;
-  store_social_links: { platform: string; url: string }[] | null;
-};
-
-// 2. Definisikan tipe return untuk 'useQuery'
 export type StoresDataResult = {
   data: StoreTableRow[];
   count: number | null;
@@ -48,7 +36,6 @@ export async function getStoresData(
   limit = 10,
   offset = 0
 ): Promise<StoresDataResult> {
-  // <-- 3. Gunakan tipe return Promise
   const supabase = await createClient();
 
   let query = supabase
@@ -66,24 +53,20 @@ export async function getStoresData(
     )
     .eq("is_published", true);
 
-  // ... (filter Anda: subDistrictId, villageId, search)
   if (subDistrictId) query = query.eq("sub_district_id", subDistrictId);
   if (villageId) query = query.eq("village_id", villageId);
   if (search) query = query.ilike("name", `%${search}%`);
 
-  // 4. Destructure hasil query & beri tipe .returns()
   const { data, error, count } = await query
     .range(offset, offset + limit - 1)
     .order("created_at", { ascending: false })
-    .returns<StoreTableRow[]>(); // <-- 5. Beri tipe pada .returns()
+    .returns<StoreTableRow[]>(); // 
 
-  // 6. Handle error dan kembalikan shape yang konsisten
   if (error) {
     console.error("Error fetching stores data:", error);
-    return { data: [], count: 0 }; // Kembalikan data kosong
+    return { data: [], count: 0 }; 
   }
 
-  // 7. Kembalikan data dengan shape yang konsisten
   return { data: data || [], count: count || 0 };
 }
 
@@ -117,7 +100,6 @@ export async function getStoreDetail(storeId: number) {
     return { data: null as StoreTableRow | null, error };
   }
 
-  // Normalisasi array → objek tunggal
   const normalized: StoreTableRow = {
     ...data,
     users: Array.isArray(data.users)

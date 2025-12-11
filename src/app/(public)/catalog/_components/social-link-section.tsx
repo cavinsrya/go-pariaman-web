@@ -21,7 +21,6 @@ type PlatformMeta = {
   section: "top" | "bottom";
 };
 
-// hanya simpan info warna + section di sini
 const PLATFORM_META: Record<string, PlatformMeta> = {
   whatsapp: {
     color:
@@ -62,7 +61,6 @@ const PLATFORM_META: Record<string, PlatformMeta> = {
 
 type PlatformConfig = SocialPlatform & PlatformMeta;
 
-// helper: gabungkan data dari SOCIAL_PLATFORMS + meta lokal
 function resolvePlatform(platformRaw: string): PlatformConfig | null {
   const key = platformRaw.toLowerCase();
 
@@ -97,7 +95,6 @@ export default function SocialLinksSection({
 
   return (
     <div className="space-y-6">
-      {/* Top Section - Social Media */}
       {topLinks.length > 0 && (
         <div className="grid grid-cols-2 gap-3">
           {topLinks.map(({ link, config }) => {
@@ -122,7 +119,6 @@ export default function SocialLinksSection({
         </div>
       )}
 
-      {/* Bottom Section - Marketplace */}
       {bottomLinks.length > 0 && (
         <div>
           <p className="text-sm font-semibold text-muted-foreground mb-3">

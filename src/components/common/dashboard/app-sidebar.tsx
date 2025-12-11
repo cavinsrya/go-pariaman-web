@@ -34,19 +34,12 @@ import { usePathname } from "next/navigation";
 import { signOut } from "@/actions/auth-action";
 
 import Link from "next/link";
-import { Skeleton } from "../../ui/skeleton";
-import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function AppSidebar() {
   const { isMobile } = useSidebar();
   const pathname = usePathname();
   const profile = useAuthStore((state) => state.profile);
-  const [mounted, setMounted] = useState(false);
-
-  //   useEffect(() => {
-  //     setMounted(true);
-  //   }, []);
 
   const logoSrc =
     "https://res.cloudinary.com/dohpngcuj/image/upload/v1760430546/mainlogo_z9im0h.png";
@@ -60,9 +53,6 @@ export function AppSidebar() {
               asChild
               className="data-[state=open}:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              {/* {!mounted ? (
-                <Skeleton className="w-[140px] h-[50px] mt-4 mx-auto" />
-              ) : ( */}
               <div className="w-[140px] h-[50px] mx-auto mt-4 relative">
                 <Image
                   src={logoSrc}
@@ -73,7 +63,6 @@ export function AppSidebar() {
                   priority
                 />
               </div>
-              {/* )} */}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -109,15 +98,6 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* {!profile.name || !profile.role ? (
-              <div className="flex items-center gap-3 p-4">
-                <Skeleton className="h-8 w-8 rounded-lg" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-3 w-[100px]" />
-                  <Skeleton className="h-3 w-[60px]" />
-                </div>
-              </div>
-            ) : ( */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
@@ -177,7 +157,6 @@ export function AppSidebar() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            {/* )} */}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

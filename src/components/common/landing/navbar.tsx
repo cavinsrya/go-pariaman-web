@@ -31,7 +31,6 @@ export default function Navbar01() {
       ? pathname === "/"
       : pathname === href || pathname.startsWith(href + "/");
 
-  // base style untuk nav (non-gradient)
   const navBase =
     "px-4 py-2 text-sm rounded-md no-underline transition-colors font-bold";
   const navHover = "hover:bg-accent hover:text-accent-foreground font-bold";
@@ -41,7 +40,6 @@ export default function Navbar01() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 items-center h-16 gap-2">
-          {/* kiri: logo */}
           <div className="flex items-center">
             <Link href="/" className="inline-flex items-center gap-2">
               <Image
@@ -56,7 +54,6 @@ export default function Navbar01() {
             </Link>
           </div>
 
-          {/* tengah: menu */}
           <div className="hidden md:flex items-center justify-center">
             <NavigationMenu>
               <NavigationMenuList className="gap-2">
@@ -78,7 +75,6 @@ export default function Navbar01() {
             </NavigationMenu>
           </div>
 
-          {/* kanan: CTA + mobile menu */}
           <div className="flex items-center justify-end gap-2">
             <div className="hidden md:block">
               <Link href="/login" className={cn("px-4 text-sm", gradientBtn)}>
@@ -86,7 +82,6 @@ export default function Navbar01() {
               </Link>
             </div>
 
-            {/* mobile */}
             <div className="md:hidden">
               <Popover>
                 <PopoverTrigger asChild>
@@ -94,7 +89,6 @@ export default function Navbar01() {
                     aria-label="Menu"
                     className="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
                   >
-                    {/* simple burger */}
                     <div className="space-y-1.5">
                       <span className="block h-0.5 w-5 bg-current" />
                       <span className="block h-0.5 w-5 bg-current" />

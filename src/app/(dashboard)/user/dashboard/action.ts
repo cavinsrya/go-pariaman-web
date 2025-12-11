@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../../../../database.types";
-// Helper untuk mendapatkan store_id milik user
+
 async function getUserStoreId(supabase: SupabaseClient<Database>) {
   const {
     data: { user },
@@ -19,9 +19,6 @@ async function getUserStoreId(supabase: SupabaseClient<Database>) {
   return store?.id || null;
 }
 
-/**
- * Mengambil daftar produk milik user untuk mengisi dropdown
- */
 type ProductDropdownItem = { id: number; title: string };
 export async function getUserProductsForDropdown(): Promise<
   ProductDropdownItem[]
@@ -44,9 +41,6 @@ export async function getUserProductsForDropdown(): Promise<
   return products || [];
 }
 
-/**
- * Tipe data untuk hasil analitik
- */
 export type AnalyticsDataPoint = {
   date: string;
   product_title: string;
@@ -54,10 +48,6 @@ export type AnalyticsDataPoint = {
 };
 
 export type TimeRange = "7d" | "30d" | "12m" | "all";
-
-/**
- * Mengambil data analitik untuk grafik
- */
 
 type RpcAnalyticsResult = {
   view_date: string;
@@ -74,7 +64,6 @@ export async function getProductViewAnalytics(params: {
 
   if (!storeId) return [];
 
-  // --- Logika untuk menerjemahkan filter
   let groupBy: "day" | "month" | "year";
   let startDate: string | null = null;
   const now = new Date();
@@ -97,7 +86,6 @@ export async function getProductViewAnalytics(params: {
       break;
   }
 
-  // Panggil RPC
   const { data, error } = await supabase
     .rpc("get_product_views_analytics", {
       p_store_id: storeId,
@@ -122,7 +110,6 @@ export async function getProductViewAnalytics(params: {
 
   if (!data) return [];
 
-  // --- Format data dengan product_title
   return data.map((row: RpcAnalyticsResult) => ({
     date: new Date(row.view_date).toLocaleDateString("en-CA"),
     product_title: row.product_title || "Unknown",

@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   const profile = JSON.parse(cookiesStore.get("user_profile")?.value ?? "{}");
 
   if (!profile || !profile.id) {
-    redirect("/login"); // Arahkan ke halaman login
+    redirect("/login");
   }
   return (
     <AuthStoreProvider profile={profile}>

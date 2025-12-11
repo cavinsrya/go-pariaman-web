@@ -53,7 +53,6 @@ export default function FilterSidebar({
     price: true,
   });
 
-  // ✅ Fetch villages when sub_district changes
   useEffect(() => {
     if (selectedSubDistrict) {
       setIsLoadingVillages(true);
@@ -67,7 +66,6 @@ export default function FilterSidebar({
     }
   }, [selectedSubDistrict, onVillageChange]);
 
-  // ✅ Memoized toggle function
   const toggleSection = useCallback(
     (section: keyof typeof expandedSections) => {
       setExpandedSections((prev) => ({
@@ -80,7 +78,6 @@ export default function FilterSidebar({
 
   const sidebarContent = (
     <div className="space-y-6">
-      {/* Kategori Filter */}
       <div className="border-b pb-4">
         <button
           onClick={() => toggleSection("category")}
@@ -116,7 +113,6 @@ export default function FilterSidebar({
         )}
       </div>
 
-      {/* Kecamatan Filter */}
       <div className="border-b pb-4">
         <button
           onClick={() => toggleSection("subDistrict")}
@@ -152,7 +148,6 @@ export default function FilterSidebar({
         )}
       </div>
 
-      {/* Desa Filter */}
       <div className="border-b pb-4">
         <button
           onClick={() => toggleSection("village")}
@@ -201,7 +196,6 @@ export default function FilterSidebar({
         )}
       </div>
 
-      {/* Harga Filter */}
       <div>
         <button
           onClick={() => toggleSection("price")}
@@ -236,13 +230,11 @@ export default function FilterSidebar({
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <div className="hidden lg:block w-64 bg-white border-r p-6 h-fit sticky top-20">
         <h2 className="font-bold text-lg mb-6">Filter Produk</h2>
         {sidebarContent}
       </div>
 
-      {/* Mobile Sidebar */}
       <div className="lg:hidden">
         {isOpen && (
           <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />

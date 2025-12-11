@@ -65,7 +65,6 @@ export default function DialogUpdateProduct({
 
   const previousStatusRef = useRef(updateProductState?.status);
 
-  // ✅ Optimized: Memoized submit handler
   const onSubmit = useCallback(
     form.handleSubmit((data) => {
       const formData = new FormData();
@@ -94,7 +93,6 @@ export default function DialogUpdateProduct({
     ]
   );
 
-  // Handle action state changes
   useEffect(() => {
     if (
       updateProductState?.status !== previousStatusRef.current &&
@@ -120,7 +118,6 @@ export default function DialogUpdateProduct({
     previousStatusRef.current = updateProductState?.status;
   }, [updateProductState, form, refetch, handleChangeAction]);
 
-  // Populate form when dialog opens
   useEffect(() => {
     if (currentData && open) {
       form.setValue("title", currentData.title || "");
@@ -139,7 +136,6 @@ export default function DialogUpdateProduct({
     }
   }, [currentData, open, form]);
 
-  // Memoized delete handler
   const handleDeleteExistingMedia = useCallback((mediaPath: string) => {
     setCurrentExistingMedia((prev) =>
       prev.filter((media) => media.media_path !== mediaPath)

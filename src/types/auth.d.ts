@@ -1,9 +1,3 @@
-/**
- * ✅ Updated Auth Types
- * Added complete profile form state types
- */
-
-// Base Auth Form State (Login, Register, Change Password)
 export type AuthFormState = {
   status?: string;
   errors?: {
@@ -18,7 +12,6 @@ export type AuthFormState = {
   };
 };
 
-// ✅ NEW: Complete Profile Form State (Store Profile Update)
 export type CompleteProfileFormState = {
   status?: string;
   errors?: {
@@ -37,7 +30,6 @@ export type CompleteProfileFormState = {
   };
 };
 
-// Profile Type
 export type Profile = {
   id?: string;
   name?: string;
@@ -46,7 +38,6 @@ export type Profile = {
   is_profile_completed?: boolean;
 };
 
-//
 export type StoreProfile = {
   id: number;
   name: string;
@@ -55,7 +46,7 @@ export type StoreProfile = {
   address: string | null;
   logo_url: string | null;
   cover_url: string | null;
-  owner_user_id: string; // UUID
+  owner_user_id: string; 
   sub_district_id: number | null;
   village_id: number | null;
   users: {

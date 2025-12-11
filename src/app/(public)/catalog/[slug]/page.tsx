@@ -21,6 +21,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+export const metadata = {
+  title: "UMKM Pariaman | Detail Produk",
+};
+
 type Category = { id: number; name: string };
 
 type ProductCategoryServer =
@@ -42,7 +46,6 @@ type StoreForCard = {
   users?: StoreUser | null;
 };
 
-/** ---------- Helpers ---------- */
 function normalizeCategories(
   pcs: ProductCategoryServer[] | undefined
 ): Category[] {
@@ -57,7 +60,6 @@ function normalizeCategories(
 }
 
 function extractName(maybeObjOrArr: unknown): string | null {
-  // handle { name: string } | [{ name: string }] | null/undefined
   if (Array.isArray(maybeObjOrArr)) {
     return (maybeObjOrArr[0] as { name?: string } | undefined)?.name ?? null;
   }
@@ -123,7 +125,6 @@ export default async function ProductDetailPage({
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Breadcrumb */}
         <Breadcrumb className="mb-8">
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -136,16 +137,11 @@ export default async function ProductDetailPage({
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          {/* Left Column - Media Gallery */}
           <div className="lg:col-span-5">
             <MediaGallery media={product.product_media || []} />
           </div>
-
-          {/* Right Column - Product Info */}
           <div className="lg:col-span-7">
-            {/* Category Badge */}
             {categories.length > 0 && (
               <div className="mb-2">
                 <Badge variant="outline" className="rounded-full">
@@ -154,12 +150,10 @@ export default async function ProductDetailPage({
               </div>
             )}
 
-            {/* Product Title */}
             <h1 className="text-pretty text-2xl font-extrabold tracking-tight md:text-4xl">
               {product.title}
             </h1>
 
-            {/* Price */}
             <p className="mt-2 text-sm text-muted-foreground">Mulai Dari</p>
             <p className="text-2xl font-bold text-primary">
               Rp {product.price.toLocaleString("id-ID")}
@@ -167,7 +161,6 @@ export default async function ProductDetailPage({
 
             <Separator className="my-6" />
 
-            {/* Description */}
             <div className="space-y-3">
               <h2 className="font-semibold">Deskripsi:</h2>
               <p className="text-sm leading-relaxed whitespace-pre-line">
@@ -175,19 +168,16 @@ export default async function ProductDetailPage({
               </p>
             </div>
 
-            {/* Store Info */}
             <div className="py-8">
               {storeForInfoCard && <StoreInfoCard store={storeForInfoCard} />}
             </div>
 
-            {/* Social Links */}
             {socialLinks.length > 0 && (
               <SocialLinksSection socialLinks={socialLinks} />
             )}
           </div>
         </div>
 
-        {/* Reviews Section */}
         <div className="py-8">
           <ReviewsSection
             productId={productId}
@@ -196,7 +186,6 @@ export default async function ProductDetailPage({
           />
         </div>
 
-        {/* Related Products */}
         {formattedRelatedProducts.length > 0 && (
           <div className="py-8">
             <RelatedProducts products={formattedRelatedProducts} />

@@ -47,7 +47,6 @@ export type StoreDataResult = {
   reviews: ReviewForStore[];
 } | null;
 
-// Bentuk mentah hasil SELECT (social links masih punya is_enabled)
 type RawStoreRow = {
   id: number;
   name: string;
@@ -86,7 +85,6 @@ export async function getStoreData(slug: string): Promise<StoreDataResult> {
     }
   );
 
-  // ✅ KUNCI: ketik di single<RawStoreRow>() (atau gunakan .returns<RawStoreRow[]>().single())
   const { data: store, error: storeError } = await supabase
     .from("stores")
     .select(
@@ -111,7 +109,7 @@ export async function getStoreData(slug: string): Promise<StoreDataResult> {
   const { data: products, error: productsError } = await supabase
     .from("products")
     .select("id, title, price, slug, product_media(media_path, media_type)")
-    .eq("store_id", store.id) // ✅ sekarang store.id sudah terketik
+    .eq("store_id", store.id) 
     .eq("is_published", true)
     .returns<ProductForStore[]>();
 
@@ -132,7 +130,6 @@ export async function getStoreData(slug: string): Promise<StoreDataResult> {
     console.error("Error fetching store reviews:", reviewsError);
   }
 
-  // ✅ Narrow & hilangkan implicit any saat destructuring
   const enabledSocialLinks: StoreSocialLink[] = (store.store_social_links ?? [])
     .filter(
       (l): l is { platform: string; url: string; is_enabled: boolean } =>
@@ -143,7 +140,6 @@ export async function getStoreData(slug: string): Promise<StoreDataResult> {
       url,
     }));
 
-  // ✅ Spread aman: 'store' sudah bertipe RawStoreRow (bukan union error)
   return {
     store: { ...store, store_social_links: enabledSocialLinks },
     products: products ?? [],

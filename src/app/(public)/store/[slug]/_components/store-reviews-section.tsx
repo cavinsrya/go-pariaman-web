@@ -42,7 +42,6 @@ export default function StoreReviewsSection({
           Ulasan Pelanggan ({reviews.length})
         </h2>
 
-        {/* Average Rating */}
         <div className="flex items-center gap-4 mb-8 p-4 bg-muted rounded-lg">
           <div>
             <div className="flex gap-1 mb-2">
@@ -64,7 +63,6 @@ export default function StoreReviewsSection({
         </div>
       </div>
 
-      {/* Reviews List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reviews.map((review) => (
           <Card key={review.id}>

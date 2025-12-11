@@ -1,6 +1,5 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server"; 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -52,10 +51,10 @@ export async function getFeaturedStores(): Promise<FeaturedStore[]> {
     .from("stores")
     .select(
       "id, name, slug, logo_url, description, users:owner_user_id(name, avatar_url)"
-    ) // Ambil kolom yang dibutuhkan
-    .eq("is_published", true) // Hanya yang sudah publish
-    .order("created_at", { ascending: false }) // Urutkan (misal terbaru)
-    .limit(8); // Batasi jumlah
+    ) 
+    .eq("is_published", true) 
+    .order("created_at", { ascending: false }) 
+    .limit(8); 
 
   if (error) {
     console.error("Error fetching featured stores:", error);

@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Star, Phone, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,6 +17,10 @@ import {
   type StoreSocialLink,
 } from "./action";
 import CatalogProductCard from "@/app/(public)/catalog/_components/catalog-product-card";
+
+export const metadata = {
+  title: "UMKM Pariaman | Profil Toko",
+};
 
 export default async function StoreProfilePage({
   params,
@@ -54,7 +57,6 @@ export default async function StoreProfilePage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -73,10 +75,8 @@ export default async function StoreProfilePage({
         </Breadcrumb>
       </div>
 
-      {/* Store Header */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="space-y-6">
-          {/* Cover */}
           <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
             {store.cover_url && (
               <Image
@@ -88,10 +88,8 @@ export default async function StoreProfilePage({
             )}
           </div>
 
-          {/* Store Info Card */}
           <div className="bg-background rounded-lg shadow-lg p-6 md:p-8 -mt-20 relative z-10">
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
-              {/* Logo */}
               <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border-4 border-background shadow-md">
                 {store.logo_url && (
                   <Image
@@ -103,7 +101,6 @@ export default async function StoreProfilePage({
                 )}
               </div>
 
-              {/* Details */}
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">
                   {store.name}
@@ -152,7 +149,6 @@ export default async function StoreProfilePage({
         </div>
       </div>
 
-      {/* Products Section */}
       <div className="max-w-7xl mx-auto px-4 py-12 border-t">
         <h2 className="text-2xl font-bold mb-6">
           Produk Toko ({products.length})
@@ -180,7 +176,6 @@ export default async function StoreProfilePage({
         )}
       </div>
 
-      {/* Reviews Section */}
       <div className="max-w-7xl mx-auto px-4 py-12 border-t">
         <h2 className="text-2xl font-bold mb-6">
           Ulasan Pelanggan ({reviews.length})

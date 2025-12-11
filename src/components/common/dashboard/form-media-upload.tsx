@@ -44,7 +44,6 @@ export default function FormMediaUpload({
         return;
       }
 
-      // Validate each file
       const validFiles: File[] = [];
       const newPreviewUrls: string[] = [];
 
@@ -77,7 +76,6 @@ export default function FormMediaUpload({
         onFilesChange?.(updatedFiles);
       }
 
-      // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -90,7 +88,6 @@ export default function FormMediaUpload({
       const updatedFiles = selectedFiles.filter((_, i) => i !== index);
       const updatedPreviews = previewUrls.filter((_, i) => i !== index);
 
-      // Revoke object URL to prevent memory leak
       URL.revokeObjectURL(previewUrls[index]);
 
       setSelectedFiles(updatedFiles);
@@ -120,7 +117,6 @@ export default function FormMediaUpload({
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
 
-      {/* File Input Button */}
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -146,15 +142,12 @@ export default function FormMediaUpload({
         className="hidden"
       />
 
-      {/* Info */}
       <p className="text-xs text-muted-foreground">
         Format: JPG, PNG, WebP, GIF (max 5MB) | MP4, WebM, OGG, MOV (max 50MB)
       </p>
 
-      {/* Preview Grid */}
       {(existingMedia.length > 0 || selectedFiles.length > 0) && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {/* Existing Media */}
           {existingMedia.map((media) => (
             <div key={media.media_path} className="relative group">
               <div className="aspect-square rounded-lg overflow-hidden bg-muted border">
@@ -197,7 +190,6 @@ export default function FormMediaUpload({
             </div>
           ))}
 
-          {/* New Files Preview */}
           {selectedFiles.map((file, index) => {
             const fileType = getFileType(file);
             return (

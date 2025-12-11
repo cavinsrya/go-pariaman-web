@@ -28,7 +28,7 @@ export default function CatalogProductCard({
   location,
   mediaType = "image",
 }: CatalogProductCardProps) {
-  const isVideo = mediaType === "video" && image; // ✅ Only video if we have image URL
+  const isVideo = mediaType === "video" && image;
 
   return (
     <Link href={`/catalog/${storeSlug}`} className="block h-full">

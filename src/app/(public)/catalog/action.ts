@@ -25,13 +25,11 @@ async function makeSupabase() {
   );
 }
 
-// ==================== FILTERS ====================
 
 export async function getCatalogFilters() {
   const supabase = await makeSupabase();
 
   try {
-    // Fetch categories
     const { data: categories, error: catError } = await supabase
       .from("categories")
       .select("id, name")
@@ -41,7 +39,6 @@ export async function getCatalogFilters() {
       console.error("Error fetching categories:", catError);
     }
 
-    // Fetch sub_districts
     const { data: subDistricts, error: sdError } = await supabase
       .from("sub_districts")
       .select("id, name")
@@ -85,8 +82,6 @@ export async function getVillagesBySubDistrict(subDistrictId: number) {
     return [];
   }
 }
-
-// ==================== PRODUCTS ====================
 
 export type CatalogProduct = {
   id: number;
@@ -133,12 +128,10 @@ export async function getCatalogProducts({
   const supabase = await makeSupabase();
 
   try {
-    // ✅ Filter by location → get store IDs first
     let storeIds: number[] | null = null;
     if (subDistrictId !== undefined || villageId !== undefined) {
       let storeQuery = supabase.from("stores").select("id");
 
-      // ✅ Add null checks before using eq
       if (subDistrictId !== undefined && subDistrictId !== null) {
         storeQuery = storeQuery.eq("sub_district_id", subDistrictId);
       }
@@ -160,7 +153,6 @@ export async function getCatalogProducts({
       storeIds = matchStores.map((store) => store.id);
     }
 
-    // ✅ Filter by category → get product IDs
     let productIdsByCategory: number[] | null = null;
     if (categoryIds.length > 0) {
       const { data: productCategories, error: categoryError } = await supabase
@@ -180,7 +172,6 @@ export async function getCatalogProducts({
       productIdsByCategory = productCategories.map((pc) => pc.product_id);
     }
 
-    // ✅ Build main query with all filters
     let query = supabase
       .from("products")
       .select(
@@ -207,7 +198,6 @@ export async function getCatalogProducts({
       )
       .eq("is_published", true);
 
-    // Apply filters
     if (search) {
       query = query.ilike("title", `%${search}%`);
     }
@@ -218,7 +208,6 @@ export async function getCatalogProducts({
       query = query.in("id", productIdsByCategory);
     }
 
-    // Apply pagination
     const offset = (page - 1) * limit;
 
     const { data, error, count } = await query
@@ -240,8 +229,6 @@ export async function getCatalogProducts({
     return { products: [], total: 0 };
   }
 }
-
-// ==================== PRODUCT DETAIL ====================
 
 export async function getProductDetail(slug: string) {
   console.log("Fetching product detail for slug:", slug);
@@ -300,8 +287,6 @@ export async function getProductDetail(slug: string) {
   }
 }
 
-// ==================== RELATED PRODUCTS ====================
-
 export async function getRelatedProducts(
   storeId: number,
   currentProductId: number,
@@ -341,8 +326,6 @@ export async function getRelatedProducts(
     return [];
   }
 }
-
-// ==================== REVIEWS ====================
 
 export async function getProductReviews(productId: number) {
   const supabase = await makeSupabase();
@@ -402,8 +385,6 @@ export async function submitProductReview(
     };
   }
 }
-
-// ==================== ANALYTICS ====================
 
 export async function incrementProductView(productId: number) {
   const supabase = await makeSupabase();

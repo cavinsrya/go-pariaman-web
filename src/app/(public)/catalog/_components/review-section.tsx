@@ -65,7 +65,6 @@ export default function ReviewsSection({
         <Button onClick={() => setShowForm(!showForm)}>Buat Ulasan</Button>
       </div>
 
-      {/* Review Form */}
       {showForm && (
         <ReviewForm
           productId={productId}
@@ -73,7 +72,6 @@ export default function ReviewsSection({
         />
       )}
 
-      {/* Reviews List */}
       <div className="space-y-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         {displayedReviews.map((review) => (
           <Card key={review.id} className="max-h-56">
@@ -109,7 +107,6 @@ export default function ReviewsSection({
         ))}
       </div>
 
-      {/* View All Reviews Button */}
       {totalReviews > 3 && (
         <Button
           variant="outline"
@@ -120,7 +117,6 @@ export default function ReviewsSection({
         </Button>
       )}
 
-      {/* Reviews Dialog */}
       <ReviewsDialog
         open={showAllReviews}
         onOpenChange={setShowAllReviews}

@@ -27,7 +27,6 @@ import {
 import { Eye, ExternalLink } from "lucide-react";
 import DialogStoreDetail from "./dialog-detail-user";
 import { toast } from "sonner";
-import { StoreProfile } from "@/types/auth";
 
 type SubDistrictOption = { id: number; name: string; stores: { id: number }[] }; // Tipe dari getSubDistrictsWithCount
 type VillageOption = { id: number; name: string };
@@ -51,7 +50,6 @@ export default function StoresTable() {
   );
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Fetch sub districts
   const { data: subDistrictsData } = useQuery<SubDistrictOption[]>({
     queryKey: ["sub_districts"],
     queryFn: async () => {
@@ -60,7 +58,6 @@ export default function StoresTable() {
     },
   });
 
-  // Fetch villages based on selected sub district
   const { data: villagesData } = useQuery<VillageOption[]>({
     queryKey: ["villages", selectedSubDistrict],
     queryFn: async () => {
@@ -71,7 +68,6 @@ export default function StoresTable() {
     enabled: !!selectedSubDistrict,
   });
 
-  // Fetch stores
   const {
     data: storesData,
     isLoading,
@@ -97,7 +93,6 @@ export default function StoresTable() {
     },
   });
 
-  // Fetch store detail when dialog opens
   useEffect(() => {
     if (!dialogOpen || !selectedStore) return;
 
@@ -109,7 +104,7 @@ export default function StoresTable() {
       if (result.error || !result.data) {
         toast.error("Failed to load store details");
       } else {
-        setSelectedStore(result.data); // ⬅️ sudah ter-normalisasi
+        setSelectedStore(result.data);
       }
     })();
 
@@ -128,7 +123,7 @@ export default function StoresTable() {
         store.phone || "-",
         store.address ? store.address.substring(0, 50) + "..." : "-",
         <DropdownAction
-          key={store.slug} // Added key prop
+          key={store.slug}
           menu={[
             {
               label: (
@@ -178,7 +173,6 @@ export default function StoresTable() {
 
   return (
     <div className="w-full space-y-4">
-      {/* Filters */}
       <div className="flex flex-col lg:flex-row gap-3 items-end">
         <div className="flex-1">
           <label className="text-sm font-medium mb-2 block">Cari Toko</label>
@@ -238,7 +232,6 @@ export default function StoresTable() {
         </div>
       </div>
 
-      {/* Table */}
       <DataTable
         header={HEADER_TABLE_STORES}
         data={filteredData}
@@ -250,7 +243,6 @@ export default function StoresTable() {
         onChangeLimit={handleChangeLimit}
       />
 
-      {/* Dialog */}
       <DialogStoreDetail
         open={dialogOpen}
         onOpenChange={setDialogOpen}

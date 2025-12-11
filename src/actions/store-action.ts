@@ -2,76 +2,35 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-// export async function getStoreProfile() {
-//   const supabase = await createClient();
-
-//   const {
-//     data: { user },
-//     error: userError,
-//   } = await supabase.auth.getUser();
-
-//   if (userError || !user) {
-//     return null;
-//   }
-
-//   const { data: store, error: storeError } = await supabase
-//     .from("stores")
-//     .select("*")
-//     .eq("owner_user_id", user.id)
-//     .single();
-
-//   if (storeError || !store) {
-//     return null;
-//   }
-
-//   const { data: socialLinks, error: socialError } = await supabase
-//     .from("store_social_links")
-//     .select("*")
-//     .eq("store_id", store.id);
-
-//   if (socialError) {
-//     return null;
-//   }
-
-//   return {
-//     store,
-//     socialLinks: socialLinks || [],
-//   };
-// }
-
 export async function getStoreProfileData() {
-  const supabase = await createClient(); // Asumsi ini client server Anda
+  const supabase = await createClient(); 
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  // 1. Ambil data user dari public.users
   const { data: userData } = await supabase
     .from("users")
     .select("id, name, avatar_url, role")
     .eq("id", user.id)
     .single();
 
-  if (!userData) return null; // Tidak ada profil user
+  if (!userData) return null; 
 
-  // 2. Ambil data toko dari public.stores
   const { data: storeData } = await supabase
     .from("stores")
     .select("*")
     .eq("owner_user_id", user.id)
     .single();
 
-  if (!storeData) return null; // Tidak ada toko (meski seharusnya ada by trigger)
+  if (!storeData) return null; 
 
-  // 3. Ambil data social links
   const { data: socialLinks } = await supabase
     .from("store_social_links")
     .select("*")
     .eq("store_id", storeData.id);
 
-  // 4. Kembalikan semua data sebagai satu objek
   return {
     user: userData,
     store: storeData,

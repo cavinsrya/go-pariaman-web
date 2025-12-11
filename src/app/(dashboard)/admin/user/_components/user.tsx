@@ -9,13 +9,14 @@ import { HEADER_TABLE_USER } from "@/constants/user-constant";
 import useDataTable from "@/hooks/use-data-table";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Pencil, Trash2, UserRoundPlus } from "lucide-react";
+import { Pencil, Trash2, UserRoundPlus, KeyRound } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import DialogCreateUser from "@/app/(dashboard)/_components/dialog-create-user";
 import DialogUpdateUser from "@/app/(dashboard)/_components/dialog-update-user";
 import { Profile } from "@/types/auth";
 import DialogDeleteUser from "@/app/(dashboard)/_components/dialog-delete-user";
+import DialogChangePassword from "@/app/(dashboard)/_components/dialog-change-password-user";
 
 export default function UserManagement() {
   const supabase = createClient();
@@ -36,7 +37,7 @@ export default function UserManagement() {
     queryFn: async () => {
       const result = await supabase
         .from("users")
-        .select("*", { count: "exact" })
+        .select("*, stores(name)", { count: "exact" })
         .range((currentPage - 1) * currentLimit, currentPage * currentLimit - 1)
         .order("created_at")
         .ilike("name", `%${currentSearch}%`);
@@ -52,7 +53,7 @@ export default function UserManagement() {
 
   const [selectedAction, setSelectedAction] = useState<{
     data: Profile;
-    type: "update" | "delete";
+    type: "update" | "delete" | "changePassword";
   } | null>(null);
 
   const handleChangeAction = (open: boolean) => {
@@ -61,10 +62,12 @@ export default function UserManagement() {
 
   const filteredData = useMemo(() => {
     return (users?.data || []).map((user, index) => {
+      const storeName = user.stores?.name || "-(admin)";
       return [
         currentLimit * (currentPage - 1) + index + 1,
         user.id,
         user.name,
+        storeName,
         user.role,
         <DropdownAction
           menu={[
@@ -79,6 +82,20 @@ export default function UserManagement() {
                 setSelectedAction({
                   data: user,
                   type: "update",
+                });
+              },
+            },
+            {
+              label: (
+                <span className="flex item-center gap-2">
+                  <KeyRound />
+                  Change Password
+                </span>
+              ),
+              action: () => {
+                setSelectedAction({
+                  data: user,
+                  type: "changePassword",
                 });
               },
             },
@@ -101,7 +118,7 @@ export default function UserManagement() {
         />,
       ];
     });
-  }, [users]);
+  }, [users, currentLimit, currentPage]);
 
   const totalPages = useMemo(() => {
     return users && users.count !== null
@@ -141,6 +158,14 @@ export default function UserManagement() {
       />
       <DialogUpdateUser
         open={selectedAction !== null && selectedAction.type === "update"}
+        refetch={refetch}
+        currentData={selectedAction?.data}
+        handleChangeAction={handleChangeAction}
+      />
+      <DialogChangePassword
+        open={
+          selectedAction !== null && selectedAction.type === "changePassword"
+        }
         refetch={refetch}
         currentData={selectedAction?.data}
         handleChangeAction={handleChangeAction}

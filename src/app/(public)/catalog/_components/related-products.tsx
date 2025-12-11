@@ -25,7 +25,6 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
     return null;
   }
 
-  // ✅ Helper to get location display
   const getLocationDisplay = (product: RelatedProduct): string => {
     const store = product.stores;
     if (!store) return "Kota Pariaman";

@@ -5,21 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { CompleteProfileFormState } from "@/types/auth";
 import { updateStoreProfileSchema } from "@/validations/auth.validation";
 
-/**
- * ✅ Fixed:
- * - Proper handling of optional images (logo, cover, avatar)
- * - Convert empty strings to null before validation
- * - Only update fields that have values (not null)
- * - Better error logging
- */
-
 export async function updateStoreProfile(
   prevState: CompleteProfileFormState,
   formData: FormData
 ): Promise<CompleteProfileFormState> {
   const supabase = await createClient();
 
-  // Get authenticated user
   const {
     data: { user },
     error: userError,
@@ -34,7 +25,6 @@ export async function updateStoreProfile(
     };
   }
 
-  // ✅ Extract social links with basic URL validation
   const socialLinksData: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("social_links.") && typeof value === "string") {
@@ -47,19 +37,17 @@ export async function updateStoreProfile(
     }
   }
 
-  // ✅ Helper: Get file or null (not empty string)
   const getFileOrNull = (key: string) => {
     const value = formData.getAll(key).at(-1);
     if (value instanceof File && value.size > 0) {
       return value;
     }
     if (typeof value === "string" && value.trim() !== "") {
-      return value; // Existing URL
+      return value; 
     }
-    return null; // No file/URL
+    return null; 
   };
 
-  // Validate all fields
   const validatedFields = updateStoreProfileSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
@@ -91,7 +79,6 @@ export async function updateStoreProfile(
     hasCover: !!validatedFields.data.cover_url,
   });
 
-  // ✅ Upload avatar (if provided)
   let avatarUrl: string | null = null;
   if (validatedFields.data.avatar_url instanceof File) {
     const oldAvatarPath = formData.get("old_avatar_path") as string | null;
@@ -116,7 +103,6 @@ export async function updateStoreProfile(
     avatarUrl = validatedFields.data.avatar_url; // Keep existing URL
   }
 
-  // ✅ Upload logo (if provided)
   let logoUrl: string | null = null;
   if (validatedFields.data.logo_url instanceof File) {
     const oldLogoPath = formData.get("old_logo_path") as string | null;
@@ -138,10 +124,9 @@ export async function updateStoreProfile(
     logoUrl = data.url;
     console.log("✅ Logo uploaded:", logoUrl);
   } else if (typeof validatedFields.data.logo_url === "string") {
-    logoUrl = validatedFields.data.logo_url; // Keep existing URL
+    logoUrl = validatedFields.data.logo_url; 
   }
 
-  // ✅ Upload cover (if provided)
   let coverUrl: string | null = null;
   if (validatedFields.data.cover_url instanceof File) {
     const oldCoverPath = formData.get("old_cover_path") as string | null;
@@ -163,10 +148,9 @@ export async function updateStoreProfile(
     coverUrl = data.url;
     console.log("✅ Cover uploaded:", coverUrl);
   } else if (typeof validatedFields.data.cover_url === "string") {
-    coverUrl = validatedFields.data.cover_url; // Keep existing URL
+    coverUrl = validatedFields.data.cover_url; 
   }
 
-  // Get store
   const { data: storeData, error: storeError } = await supabase
     .from("stores")
     .select("id")
@@ -181,7 +165,6 @@ export async function updateStoreProfile(
     };
   }
 
-  // ✅ Build update object - only include fields that have values
   const storeUpdateData: Record<string, any> = {
     name: validatedFields.data.name,
     description: validatedFields.data.description,
@@ -192,7 +175,6 @@ export async function updateStoreProfile(
     village_id: Number.parseInt(validatedFields.data.village_id, 10),
   };
 
-  // Only add image URLs if they exist (not null)
   if (logoUrl !== null) {
     storeUpdateData.logo_url = logoUrl;
   }
@@ -206,7 +188,6 @@ export async function updateStoreProfile(
     cover_url: storeUpdateData.cover_url ? "✅ has value" : "⏭️ skip",
   });
 
-  // ✅ Update store profile
   const { error: updateStoreError } = await supabase
     .from("stores")
     .update(storeUpdateData)
@@ -224,7 +205,6 @@ export async function updateStoreProfile(
 
   console.log("✅ Store updated successfully");
 
-  // ✅ Update user avatar (if provided)
   if (avatarUrl !== null) {
     const { error: userUpdateError } = await supabase
       .from("users")
@@ -242,7 +222,6 @@ export async function updateStoreProfile(
     console.log("✅ User avatar updated");
   }
 
-  // ✅ Update social links (delete all + re-insert)
   await supabase
     .from("store_social_links")
     .delete()

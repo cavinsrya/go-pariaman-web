@@ -1,5 +1,5 @@
 import type { FieldValues, UseFormReturn, Path } from "react-hook-form";
-import type { FormEvent } from "react"; // Impor FormEvent jika belum ada
+import type { FormEvent } from "react"; 
 
 export type ProductFormState = {
   status?: "success" | "error" | "idle";

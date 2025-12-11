@@ -13,7 +13,7 @@ import {
 } from "@/validations/product.validation";
 import type { ProductQueryResult } from "@/types/product";
 
-// Helper function to validate file
+
 function validateMediaFile(file: File): { valid: boolean; error?: string } {
   const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
   const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
@@ -47,7 +47,6 @@ export async function createProduct(
   const price = formData.get("price") as string;
   const category_ids = formData.getAll("category_ids") as string[];
 
-  // Validate media files before schema validation
   for (const file of mediaFiles) {
     const validation = validateMediaFile(file);
     if (!validation.valid) {
@@ -62,7 +61,7 @@ export async function createProduct(
     title,
     description,
     price,
-    category_ids,
+    category_ids: category_ids,
     media: mediaFiles,
   });
 
@@ -78,35 +77,38 @@ export async function createProduct(
 
   const supabase = await createClient();
 
-  // Get user's store
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
     return {
       status: "error",
-      errors: { _form: ["User tidak terautentikasi"] },
+      errors: {
+        ...prevState.errors,
+        _form: ["User not authenticated"],
+      },
     };
   }
 
-  const { data: store, error: storeError } = await supabase
+  const { data: store } = await supabase
     .from("stores")
     .select("id")
     .eq("owner_user_id", userData.user.id)
     .single();
 
-  if (storeError || !store) {
+  if (!store) {
     return {
       status: "error",
-      errors: { _form: ["Toko tidak ditemukan"] },
+      errors: {
+        ...prevState.errors,
+        _form: ["Store not found"],
+      },
     };
   }
 
-  // Create slug from title
   const slug = title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-  // Create product
   const { data: product, error: productError } = await supabase
     .from("products")
     .insert({
@@ -119,17 +121,19 @@ export async function createProduct(
     .select()
     .single();
 
-  if (productError || !product) {
+  if (productError) {
     return {
       status: "error",
-      errors: { _form: [productError?.message || "Gagal membuat produk"] },
+      errors: {
+        ...prevState.errors,
+        _form: [productError.message],
+      },
     };
   }
 
-  // Insert category relations
   const relationsToInsert = validatedFields.data.category_ids.map((catId) => ({
     product_id: product.id,
-    category_id: Number.parseInt(catId, 10),
+    category_id: Number.parseInt(catId),
   }));
 
   const { error: categoryError } = await supabase
@@ -137,83 +141,53 @@ export async function createProduct(
     .insert(relationsToInsert);
 
   if (categoryError) {
-    // Rollback: delete product if category insert fails
     await supabase.from("products").delete().eq("id", product.id);
-    return {
-      status: "error",
-      errors: { _form: ["Gagal menambahkan kategori"] },
-    };
+    return { status: "error", errors: { _form: [categoryError.message] } };
   }
 
-  // Upload media files
-  const uploadedMedia: Array<{ path: string; type: string; order: number }> = [];
-
-  for (let i = 0; i < validatedFields.data.media.length; i++) {
-    const file = validatedFields.data.media[i];
-    
-    // Determine media type
-    const mediaType = file.type.startsWith("video/") ? "video" : "image";
-    
-    // Upload to storage
+  for (let i = 0; i < mediaFiles.length; i++) {
+    const file = mediaFiles[i];
     const { errors, data } = await uploadFile(
-      "images", // Consider renaming bucket to "media" or "product-media"
+      "images",
       `products/${product.id}`,
       file
     );
 
-    if (errors || !data) {
-      // Rollback: delete uploaded files and product
-      for (const uploaded of uploadedMedia) {
-        const path = uploaded.path.split("/images/")[1];
-        if (path) await deleteFile("images", path);
-      }
-      await supabase.from("products").delete().eq("id", product.id);
-      
+    if (errors) {
       return {
         status: "error",
-        errors: { 
-          _form: [`Gagal mengunggah ${mediaType}: ${file.name}`] 
+        errors: {
+          ...prevState.errors,
+          _form: [errors._form?.[0] ?? "Failed to upload media"],
         },
       };
     }
 
-    uploadedMedia.push({ path: data.url, type: mediaType, order: i });
+    const mediaType = file.type.startsWith("video/") ? "video" : "image";
 
-    // Insert media record
-    const { error: mediaError } = await supabase.from("product_media").insert({
+    await supabase.from("product_media").insert({
       product_id: product.id,
-      media_path: data.url,
+      media_path: data.url, 
       media_type: mediaType,
       sort_order: i,
     });
-
-    if (mediaError) {
-      // Rollback
-      for (const uploaded of uploadedMedia) {
-        const path = uploaded.path.split("/images/")[1];
-        if (path) await deleteFile("images", path);
-      }
-      await supabase.from("products").delete().eq("id", product.id);
-      
-      return {
-        status: "error",
-        errors: { _form: ["Gagal menyimpan data media"] },
-      };
-    }
   }
 
-  return { status: "success", errors: {} };
+  return {
+    status: "success",
+    errors: {},
+  };
 }
 
 export async function updateProduct(
   prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  const productId = parseInt(formData.get("id") as string, 10);
-  if (!productId || isNaN(productId)) {
+  const productId = formData.get("id") as string;
+  if (!productId) {
     return {
       status: "error",
-      errors: { _form: ["Product ID tidak valid"] },
+      errors: { _form: ["Product ID tidak ditemukan"] },
     };
   }
 
@@ -223,24 +197,11 @@ export async function updateProduct(
   const category_ids = formData.getAll("category_ids") as string[];
   const newMediaFiles = formData.getAll("media") as File[];
   const deletedMediaPaths = formData.getAll("deleted_media_paths") as string[];
-
-  // Validate new media files
-  for (const file of newMediaFiles) {
-    const validation = validateMediaFile(file);
-    if (!validation.valid) {
-      return {
-        status: "error",
-        errors: { _form: [validation.error || "File tidak valid"] },
-      };
-    }
-  }
-
-  // Validate fields
   const validatedFields = updateProductSchema.safeParse({
     title,
     description,
     price,
-    category_ids,
+    category_ids: category_ids,
   });
 
   if (!validatedFields.success) {
@@ -255,7 +216,6 @@ export async function updateProduct(
 
   const supabase = await createClient();
 
-  // Update product basic info
   const { error: updateError } = await supabase
     .from("products")
     .update({
@@ -268,44 +228,39 @@ export async function updateProduct(
   if (updateError) {
     return {
       status: "error",
-      errors: { _form: ["Gagal memperbarui produk"] },
+      errors: { _form: [updateError.message], ...prevState.errors },
     };
   }
 
-  // Update category relations (delete all + re-insert)
-  await supabase
+  const { error: deleteCatError } = await supabase
     .from("product_categories")
     .delete()
     .eq("product_id", productId);
 
+  if (deleteCatError) {
+      return { status: "error", errors: { _form: ["Gagal menghapus kategori lama"] } };
+  }
+
   const relationsToInsert = validatedFields.data.category_ids.map((catId) => ({
-    product_id: productId,
-    category_id: Number.parseInt(catId, 10),
+    product_id: Number.parseInt(productId),
+    category_id: Number.parseInt(catId),
   }));
 
-  const { error: categoryError } = await supabase
+  const { error: insertCatError } = await supabase
     .from("product_categories")
     .insert(relationsToInsert);
 
-  if (categoryError) {
-    return {
-      status: "error",
-      errors: { _form: ["Gagal memperbarui kategori"] },
-    };
+  if (insertCatError) {
+    return { status: "error", errors: { _form: [insertCatError.message] } };
   }
 
-  // Delete old media files
   if (deletedMediaPaths.length > 0) {
     for (const mediaPath of deletedMediaPaths) {
-      const path = mediaPath.split("/images/")[1];
-      if (path) {
-        await deleteFile("images", path);
-      }
+      await deleteFile("images", mediaPath); 
       await supabase.from("product_media").delete().eq("media_path", mediaPath);
     }
   }
 
-  // Upload new media files
   if (newMediaFiles.length > 0) {
     const { data: lastMedia } = await supabase
       .from("product_media")
@@ -318,65 +273,79 @@ export async function updateProduct(
     let currentSortOrder = lastMedia ? lastMedia.sort_order + 1 : 0;
 
     for (const file of newMediaFiles) {
-      const mediaType = file.type.startsWith("video/") ? "video" : "image";
-      
+        const validation = validateMediaFile(file);
+        if (!validation.valid) {
+            return { status: "error", errors: { _form: [validation.error || "File media baru tidak valid"] } };
+        }
+
       const { errors, data } = await uploadFile(
         "images",
         `products/${productId}`,
         file
       );
 
-      if (errors || !data) {
+      if (errors) {
         return {
           status: "error",
-          errors: { 
-            _form: [`Gagal mengunggah ${mediaType} baru: ${file.name}`] 
+          errors: {
+            ...prevState.errors,
+            _form: [errors._form?.[0] ?? "Gagal mengunggah media baru"],
           },
         };
       }
 
+      const mediaType = file.type.startsWith("video/") ? "video" : "image";
+      
       await supabase.from("product_media").insert({
-        product_id: productId,
+        product_id: Number(productId),
         media_path: data.url,
         media_type: mediaType,
-        sort_order: currentSortOrder++,
+        sort_order: currentSortOrder,
       });
+
+      currentSortOrder++;
     }
   }
 
-  return { status: "success", errors: {} };
+  return {
+    status: "success",
+    errors: {},
+  };
 }
 
 export async function deleteProduct(
   prevState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  const productId = parseInt(formData.get("id") as string, 10);
-  if (!productId || isNaN(productId)) {
+  const productIdString = formData.get("id") as string;
+  const mediaPaths = formData.getAll("media_paths") as string[];
+
+  if (
+    !productIdString ||
+    productIdString === "null" ||
+    productIdString.trim() === ""
+  ) {
     return {
       status: "error",
-      errors: { _form: ["Product ID tidak valid"] },
+      errors: { _form: ["Product ID tidak valid atau hilang"] },
+    };
+  }
+
+  const productId = parseInt(productIdString, 10);
+  if (isNaN(productId)) {
+    return {
+      status: "error",
+      errors: { _form: ["Product ID harus berupa angka"] },
     };
   }
 
   const supabase = await createClient();
-
-  // Get and delete all media files
-  const { data: mediaList } = await supabase
-    .from("product_media")
-    .select("media_path")
-    .eq("product_id", productId);
-
-  if (mediaList) {
-    for (const media of mediaList) {
-      const path = media.media_path.split("/images/")[1];
-      if (path) {
-        await deleteFile("images", path);
-      }
+  if (mediaPaths && mediaPaths.length > 0) {
+    for (const path of mediaPaths) {
+        await deleteFile("images", path); 
     }
   }
 
-  // Delete product (cascade deletes media records)
   const { error } = await supabase
     .from("products")
     .delete()
@@ -385,11 +354,16 @@ export async function deleteProduct(
   if (error) {
     return {
       status: "error",
-      errors: { _form: ["Gagal menghapus produk"] },
+      errors: {
+        ...prevState.errors,
+        _form: [error.message],
+      },
     };
   }
 
-  return { status: "success", errors: {} };
+  return {
+    status: "success",
+  };
 }
 
 type GetProductsParams = {
@@ -411,7 +385,6 @@ export async function getProductsForUser({
 }: GetProductsParams): Promise<GetProductsReturn> {
   const supabase = await createClient();
 
-  // Get authenticated user's store
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) {
     return { data: [], count: 0, error: "User tidak ditemukan" };
@@ -427,7 +400,6 @@ export async function getProductsForUser({
     return { data: [], count: 0, error: "Toko tidak ditemukan" };
   }
 
-  // Build query
   let query = supabase
     .from("products")
     .select(
@@ -445,32 +417,28 @@ export async function getProductsForUser({
     .eq("store_id", store.id)
     .order("created_at", { ascending: false });
 
-  // Add search filter
   if (currentSearch) {
     query = query.ilike("title", `%${currentSearch}%`);
   }
 
-  // Add pagination
   const from = (currentPage - 1) * currentLimit;
   const to = currentPage * currentLimit - 1;
   query = query.range(from, to);
 
-  // Execute query
   const { data, error, count } = await query;
 
   if (error) {
-    console.error("Gagal memuat produk:", error.message);
+    console.error("Gagal memuat produk di server:", error.message);
     return { data: [], count: 0, error: error.message };
   }
 
   return {
-    data: (data || []) as ProductQueryResult[],
+    data: (data as ProductQueryResult[]) || [], 
     count: count || 0,
     error: null,
   };
 }
 
-// ==================== GET CATEGORIES ====================
 export async function getCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -482,6 +450,5 @@ export async function getCategories() {
     console.error("Gagal mengambil kategori:", error.message);
     return [];
   }
-
   return data || [];
 }

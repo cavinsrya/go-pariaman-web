@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-// --- type guards & normalizer (tanpa any) ---
 function isSlideString(v: unknown): v is string {
   return typeof v === "string";
 }
@@ -35,10 +34,8 @@ function normalizeSlide(s: SlideInput): MediaItem {
 }
 
 export default function Hero() {
-  // pastikan ImageMedia terketik sebagai ImageMediaConfig
   const media: ImageMediaConfig = ImageMedia;
 
-  // slides untuk HERO MEDIA 01 (KANAN)
   const slides: MediaItem[] =
     media.hero01Carousel && media.hero01Carousel.length > 0
       ? media.hero01Carousel
@@ -57,7 +54,6 @@ export default function Hero() {
   return (
     <section className="py-10 md:py-16">
       <div className="grid gap-8 md:grid-cols-2">
-        {/* LEFT: copy + CTA + HERO MEDIA 02 (statis) */}
         <div className="flex h-full flex-col justify-between order-2 md:order-1">
           <div className="flex flex-col gap-6 md:gap-3 xl:gap-6">
             <h1 className="text-pretty text-4xl font-extrabold tracking-tight md:text-4xl lg:text-6xl">
@@ -92,7 +88,6 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* HERO MEDIA 02 (statis) */}
           <div className="mt-4">
             <div className="relative overflow-hidden rounded-3xl bg-muted ring-1 ring-border aspect-[5/3] md:aspect-[16/9] md:w-[85%]">
               <Image
@@ -107,7 +102,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* RIGHT: HERO MEDIA 01 (carousel autoplay) */}
         <div className="order-1 md:order-2">
           <Carousel
             opts={{ align: "start", loop: true }}

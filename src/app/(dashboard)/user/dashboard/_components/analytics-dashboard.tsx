@@ -40,7 +40,6 @@ type WideAnalyticsDataPoint = {
   [product_title: string]: number | string;
 };
 
-// --- Helper Functions ---
 function toVarKey(name: string) {
   return name
     .toLowerCase()
@@ -49,45 +48,79 @@ function toVarKey(name: string) {
     .replace(/[^a-z0-9-_]/g, "");
 }
 
-function pivotData(data: LongAnalyticsDataPoint[]): WideAnalyticsDataPoint[] {
+function pivotData(
+  data: LongAnalyticsDataPoint[],
+  timeRange: TimeRange,
+  allProducts: Product[]
+): WideAnalyticsDataPoint[] {
   const wide: Record<string, WideAnalyticsDataPoint> = {};
+  const allDates = getDatesInRange(timeRange);
+
+  allDates.forEach((date) => {
+    wide[date] = { date };
+    allProducts.forEach((prod) => {
+      const key = toVarKey(prod.title);
+      wide[date][key] = 0;
+    });
+    wide[date]["unknown"] = 0;
+  });
+
   for (const { date, product_title, views } of data) {
-    const key = toVarKey(product_title);
-    if (!wide[date]) wide[date] = { date };
-    wide[date][key] = (Number(wide[date][key]) || 0) + views;
+    if (wide[date]) {
+      const key = toVarKey(product_title);
+      wide[date][key] = views;
+    }
   }
+
   return Object.values(wide).sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 }
 
-function generateConfig(data: LongAnalyticsDataPoint[]): ChartConfig {
-  const names = [...new Set(data.map((d) => d.product_title))];
-
+function generateConfig(allProducts: Product[]): ChartConfig {
   const PALETTE = [
-    "#2563eb", // blue-600
-    "#10b981", // emerald-500
-    "#f59e0b", // amber-500
-    "#ef4444", // red-500
-    "#8b5cf6", // violet-500
-    "#06b6d4", // cyan-500
-    "#22c55e", // green-500
-    "#e879f9", // fuchsia-400
-    "#fb7185", // rose-400
+    "#2563eb",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#06b6d4",
+    "#22c55e",
+    "#e879f9",
+    "#fb7185",
   ];
 
   const cfg: ChartConfig = {};
-  names.forEach((name, i) => {
-    const key = toVarKey(name);
+  allProducts.forEach((prod, i) => {
+    const key = toVarKey(prod.title);
     cfg[key] = {
-      label: name,
+      label: prod.title,
       color: PALETTE[i % PALETTE.length],
     };
   });
+  cfg[toVarKey("Unknown")] = { label: "Unknown", color: "#94a3b8" };
+
   return cfg;
 }
 
-// --- End Helper Functions ---
+function getDatesInRange(timeRange: TimeRange): string[] {
+  const dates = [];
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  let daysToSubtract = 0;
+  if (timeRange === "7d") daysToSubtract = 7;
+  else if (timeRange === "30d") daysToSubtract = 30;
+  else if (timeRange === "12m") daysToSubtract = 365;
+  else daysToSubtract = 30;
+
+  for (let i = daysToSubtract - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    dates.push(d.toLocaleDateString("en-CA"));
+  }
+  return dates;
+}
 
 export default function AnalyticsDashboard({
   initialChartData,
@@ -102,14 +135,18 @@ export default function AnalyticsDashboard({
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [productId, setProductId] = useState<"all" | number>("all");
 
-  // --- Memoized Data ---
-  const chartData = useMemo(() => pivotData(longChartData), [longChartData]);
-  const chartConfig = useMemo(
-    () => generateConfig(longChartData),
-    [longChartData]
+  const chartConfig = useMemo(() => generateConfig(products), [products]);
+  const chartData = useMemo(
+    () => pivotData(longChartData, timeRange, products),
+    [longChartData, timeRange, products]
   );
-  const productKeys = useMemo(() => Object.keys(chartConfig), [chartConfig]);
-  // --- End Memoized Data ---
+  const productKeys = useMemo(() => {
+    const keysInCurrentData = new Set<string>();
+    longChartData.forEach((d) =>
+      keysInCurrentData.add(toVarKey(d.product_title))
+    );
+    return Array.from(keysInCurrentData);
+  }, [longChartData]);
 
   const handleFilterChange = (
     newProductId: "all" | number,
@@ -142,7 +179,6 @@ export default function AnalyticsDashboard({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Dropdown Filter */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <Select
             value={productId.toString()}
@@ -184,7 +220,6 @@ export default function AnalyticsDashboard({
           </Select>
         </div>
 
-        {/* Chart */}
         <div className="relative">
           {isPending && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
@@ -219,7 +254,12 @@ export default function AnalyticsDashboard({
                   });
                 }}
               />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                allowDecimals={false}
+              />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent indicator="line" />}
@@ -253,15 +293,10 @@ export default function AnalyticsDashboard({
                   key={key}
                   dataKey={key}
                   type="monotone"
-                  stroke={`var(--color-${key})`}
-                  strokeWidth={2.2}
+                  stroke={chartConfig[key]?.color}
                   fill={`url(#fill-${key})`}
                   fillOpacity={0.6}
-                  dot={false}
-                  activeDot={{ r: 3 }}
-                  // optional: bikin overlap lebih manis
-                  // style={{ mixBlendMode: "multiply" }}
-                  stackId="a"
+                  connectNulls={true}
                 />
               ))}
             </AreaChart>

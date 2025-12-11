@@ -17,7 +17,7 @@ interface FormImageProps<T extends FieldValues> {
   type: "profile" | "cover";
 }
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const formatFileSize = (bytes: number): string => {
   return (bytes / (1024 * 1024)).toFixed(2) + " MB";
@@ -53,14 +53,12 @@ export default function FormImage<T extends FieldValues>({
       return;
     }
 
-    // File valid - create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview({
         displayUrl: reader.result as string,
         file: file,
       });
-      // Register file with form
       form.setValue(name, file as any, { shouldValidate: true });
     };
     reader.readAsDataURL(file);
@@ -69,7 +67,6 @@ export default function FormImage<T extends FieldValues>({
   const removeImage = () => {
     setPreview(undefined);
     form.setValue(name, undefined as any, { shouldValidate: true });
-    // Reset file input
     const fileInput = document.getElementById(name) as HTMLInputElement;
     if (fileInput) fileInput.value = "";
   };
@@ -80,7 +77,6 @@ export default function FormImage<T extends FieldValues>({
         {label}
       </Label>
 
-      {/* Info text */}
       <p className="text-xs text-muted-foreground">
         Format: JPG, PNG. Maksimal: 2 MB
       </p>
@@ -111,7 +107,6 @@ export default function FormImage<T extends FieldValues>({
               <X className="w-4 h-4" />
             </button>
 
-            {/* Show file size if new file */}
             {preview.file && (
               <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                 {formatFileSize(preview.file.size)}
@@ -140,7 +135,6 @@ export default function FormImage<T extends FieldValues>({
         />
       </div>
 
-      {/* Show validation error from form */}
       {form.formState.errors[name] && (
         <p className="text-sm text-destructive">
           {form.formState.errors[name]?.message as string}

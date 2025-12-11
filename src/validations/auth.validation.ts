@@ -1,22 +1,21 @@
 import z from "zod";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+const MAX_FILE_SIZE = 2 * 1024 * 1024; 
 
 const imageFileSchema = z
   .instanceof(File)
   .refine((file) => file.size <= MAX_FILE_SIZE, "Ukuran file maksimal 2MB")
   .refine((file) => file.type.startsWith("image/"), "File harus berupa gambar");
 
-// Helper: Validate image (can be File or existing URL string or null)
 const optionalImageSchema = z
   .union([
-    imageFileSchema, // New file upload
-    z.string().url().min(1), // Existing URL (not empty)
-    z.null(), // Explicitly null
-    z.undefined(), // Explicitly undefined
+    imageFileSchema, 
+    z.string().url().min(1), 
+    z.null(), 
+    z.undefined(), 
   ])
-  .optional() // Can be omitted entirely
-  .nullable(); // Can be null
+  .optional() 
+  .nullable(); 
 
 export const loginSchemaForm = z.object({
   email: z.email("Please enter a valid email").min(1, "Email is required"),
@@ -37,6 +36,11 @@ export const updateUserSchema = z.object({
     z.string().min(1, "Image URL is required"),
     z.instanceof(File),
   ]),
+});
+
+export const changePasswordUserManagementSchema = z.object({
+  password: z.string().min(6, "Password minimal 6 karakter"),
+  confirmPassword: z.string().min(6, "Password minimal 6 karakter"),
 });
 
 export const changePasswordSchema = z
@@ -76,14 +80,13 @@ export const updateStoreProfileSchema = z.object({
   sub_district_id: z.string().min(1, "Kecamatan harus dipilih"),
   village_id: z.string().min(1, "Kelurahan/Desa harus dipilih"),
 
-  // ✅ All images are optional
   avatar_url: optionalImageSchema,
   logo_url: optionalImageSchema,
   cover_url: optionalImageSchema,
   social_links: z
     .record(
-      z.string(), // key type
-      z.string().url("URL tidak valid").or(z.literal("")) // value type
+      z.string(), 
+      z.string().url("URL tidak valid").or(z.literal("")) 
     )
     .optional(),
 });

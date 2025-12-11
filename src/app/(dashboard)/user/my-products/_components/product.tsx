@@ -32,13 +32,11 @@ export default function ProductsManagement() {
     handleChangeSearch,
   } = useDataTable({ defaultLimit: 8 });
 
-  // State for Update/Delete dialogs
   const [selectedAction, setSelectedAction] = useState<{
     data: ProductQueryResult;
     type: "update" | "delete";
   } | null>(null);
 
-  // Query untuk Products dengan caching
   const {
     data: productsResult,
     isLoading: isLoadingProducts,
@@ -54,7 +52,6 @@ export default function ProductsManagement() {
         currentSearch,
       });
 
-      // Return result directly, let error handling happen outside
       if (result.error) {
         throw new Error(result.error);
       }
@@ -66,7 +63,6 @@ export default function ProductsManagement() {
     retry: 1,
   });
 
-  // Query untuk Categories dengan caching
   const {
     data: categoriesResult,
     isLoading: isLoadingCategories,
@@ -85,7 +81,6 @@ export default function ProductsManagement() {
     retry: 2,
   });
 
-  // Handle errors with useEffect
   useEffect(() => {
     if (isErrorProducts && productsError) {
       toast.error("Gagal mengambil data produk", {
@@ -102,7 +97,6 @@ export default function ProductsManagement() {
     }
   }, [categoriesError]);
 
-  // Stable callbacks with useCallback
   const handleChangeAction = useCallback((open: boolean) => {
     if (!open) {
       setSelectedAction(null);
@@ -117,25 +111,21 @@ export default function ProductsManagement() {
     setSelectedAction({ data: product, type: "delete" });
   }, []);
 
-  // Memoized total pages calculation
   const totalPages = useMemo(() => {
     if (!productsResult?.count) return 0;
     return Math.ceil(productsResult.count / currentLimit);
   }, [currentLimit, productsResult?.count]);
 
-  // Memoized products data
   const products = useMemo(() => {
     return productsResult?.data || [];
   }, [productsResult?.data]);
 
-  // Memoized categories with fallback
   const categories = useMemo(() => {
     return categoriesResult || [];
   }, [categoriesResult]);
 
   return (
     <div className="w-full container mx-auto py-8 bg-white">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row mb-6 gap-4 justify-between items-center w-full">
         <div className="flex flex-col">
           <h1 className="text-2xl font-bold">My Products</h1>
@@ -151,7 +141,6 @@ export default function ProductsManagement() {
             className="flex-1 md:flex-initial md:w-64"
           />
 
-          {/* Create Product Dialog */}
           <Dialog>
             <DialogTrigger asChild>
               <Button className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 shadow-lg shadow-teal-500/50 rounded-lg font-bold py-2 cursor-pointer shrink-0">
@@ -186,7 +175,6 @@ export default function ProductsManagement() {
         </div>
       </div>
 
-      {/* Products Grid */}
       {isLoadingProducts ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="animate-spin text-blue-900" size={40} />
@@ -222,7 +210,6 @@ export default function ProductsManagement() {
         </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <PaginationDataTable
           currentPage={currentPage}
@@ -231,7 +218,6 @@ export default function ProductsManagement() {
         />
       )}
 
-      {/* Update Dialog */}
       <DialogUpdateProduct
         open={selectedAction?.type === "update"}
         refetch={refetchProducts}
@@ -242,7 +228,6 @@ export default function ProductsManagement() {
         handleChangeAction={handleChangeAction}
       />
 
-      {/* Delete Dialog */}
       <DialogDeleteProduct
         open={selectedAction?.type === "delete"}
         refetch={refetchProducts}

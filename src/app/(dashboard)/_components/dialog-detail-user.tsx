@@ -12,7 +12,6 @@ import { Phone, MapPin, User } from "lucide-react";
 import Image from "next/image";
 import { StoreTableRow } from "../admin/dashboard/action";
 
-// --- Props Komponen ---
 interface StoreDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -46,26 +45,23 @@ export default function DialogStoreDetail({
           {store.cover_url && (
             <div className="relative h-40 bg-gray-100 rounded-lg overflow-hidden">
               <Image
-                src={store.cover_url} // Hapus fallback jika tidak perlu
-                alt={store.name}
-                layout="fill" // Gunakan fill/cover
-                objectFit="cover"
-              />
-            </div>
-          )}
-
-          {/* Info Dasar (Termasuk Logo & Pemilik) */}
-          <div className="flex items-start gap-4">
-            {/* --- Logo Toko --- */}
-            <div className="relative w-20 h-20 mt-1 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border">
-              <Image
-                src={store.logo_url || "/placeholder.svg"} // Fallback
+                src={store.cover_url}
                 alt={store.name}
                 layout="fill"
                 objectFit="cover"
               />
             </div>
-            {/* --- End Logo Toko --- */}
+          )}
+
+          <div className="flex items-start gap-4">
+            <div className="relative w-20 h-20 mt-1 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border">
+              <Image
+                src={store.logo_url || "/placeholder.svg"}
+                alt={store.name}
+                layout="fill"
+                objectFit="cover"
+              />
+            </div>
 
             <div className="grid gap-4 flex-1">
               <div>
@@ -79,7 +75,6 @@ export default function DialogStoreDetail({
                 <label className="text-sm font-semibold text-gray-600">
                   Pemilik
                 </label>
-                {/* --- Foto Profil Pemilik --- */}
                 <div className="flex items-center gap-2 mt-1">
                   <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-100">
                     <Image
@@ -91,12 +86,10 @@ export default function DialogStoreDetail({
                   </div>
                   <p className="text-base">{owner?.name || "-"}</p>
                 </div>
-                {/* --- End Foto Profil Pemilik --- */}
               </div>
             </div>
           </div>
 
-          {/* Deskripsi */}
           <div>
             <label className="text-sm font-semibold text-gray-600">
               Deskripsi
@@ -106,7 +99,6 @@ export default function DialogStoreDetail({
             </p>
           </div>
 
-          {/* Info Kontak & Alamat */}
           <div className="grid gap-3 border-t pt-4">
             <div className="flex items-center gap-3">
               <Phone className="w-4 h-4 text-gray-500" />
@@ -129,7 +121,6 @@ export default function DialogStoreDetail({
             </div>
           </div>
 
-          {/* Info Lokasi */}
           <div className="grid grid-cols-2 gap-4 border-t pt-4">
             <div>
               <label className="text-sm font-semibold text-gray-600">
@@ -145,7 +136,6 @@ export default function DialogStoreDetail({
             </div>
           </div>
 
-          {/* Social Links */}
           {socialLinks.length > 0 && (
             <div className="border-t pt-4">
               <label className="text-sm font-semibold text-gray-600 block mb-3">

@@ -9,14 +9,6 @@ import { LocationData } from "@/types/store";
 import { PARIAMAN_ID, PARIAMAN_NAME } from "@/constants/location-profile";
 import type { UpdateStoreProfileForm } from "@/validations/auth.validation";
 
-/**
- * ✅ Fixed Auto-fill Location:
- * - District always set (Pariaman)
- * - Sub-district auto-filled from database
- * - Village auto-filled from database
- * - No need to re-select when editing other fields
- */
-
 interface StoreLocationSectionProps {
   form: UseFormReturn<UpdateStoreProfileForm>;
   initialDistrictId?: number | string | null;
@@ -40,7 +32,6 @@ export default function StoreLocationSection({
 
   const selectedSubDistrict = watch("sub_district_id");
 
-  // ✅ Memoized select options
   const subDistrictOptions = useMemo(
     () =>
       subDistricts.map((sd) => ({
@@ -59,12 +50,10 @@ export default function StoreLocationSection({
     [villages]
   );
 
-  // ✅ Effect 1: Initialize ALL location data on mount (ONE TIME ONLY)
   useEffect(() => {
     let isMounted = true;
 
     const initializeLocation = async () => {
-      // ✅ Get current form values to verify they're set
       const currentDistrict = form.getValues("district_id");
       const currentSubDistrict = form.getValues("sub_district_id");
       const currentVillage = form.getValues("village_id");
@@ -82,11 +71,9 @@ export default function StoreLocationSection({
       });
 
       try {
-        // 1. Set district (always Pariaman) - IMMEDIATELY
         setValue("district_id", String(PARIAMAN_ID), { shouldDirty: false });
         console.log("✅ District set:", PARIAMAN_ID);
 
-        // 2. Fetch sub-districts
         setIsLoadingSubDistricts(true);
         console.log("⏳ Fetching sub-districts...");
         const subDistrictsData = await getSubDistricts(PARIAMAN_ID);
@@ -96,45 +83,24 @@ export default function StoreLocationSection({
           return;
         }
 
-        console.log(
-          "✅ Sub-districts fetched:",
-          subDistrictsData.length,
-          "items"
-        );
         setSubDistricts(subDistrictsData);
         setIsLoadingSubDistricts(false);
 
-        // Convert initial values to numbers
         const subDistrictId = initialSubDistrictId
           ? Number(initialSubDistrictId)
           : null;
         const villageId = initialVillageId ? Number(initialVillageId) : null;
 
-        console.log("📍 Converted IDs:", { subDistrictId, villageId });
-
-        // 3. If we have initial sub-district, set it and fetch villages
         if (subDistrictId && subDistrictId > 0) {
           const subDistrictExists = subDistrictsData.some(
             (sd) => sd.id === subDistrictId
           );
 
-          console.log("🔍 Sub-district exists?", subDistrictExists);
-
           if (subDistrictExists) {
-            // ✅ Set sub-district value IMMEDIATELY
             setValue("sub_district_id", String(subDistrictId), {
               shouldDirty: false,
             });
-            console.log("✅ Sub-district set:", subDistrictId);
 
-            // Verify it was set
-            const verifySubDistrict = form.getValues("sub_district_id");
-            console.log(
-              "🔍 Verify sub-district value after setValue:",
-              verifySubDistrict
-            );
-
-            // 4. Fetch villages for this sub-district
             setIsLoadingVillages(true);
             console.log(
               "⏳ Fetching villages for sub-district:",
@@ -143,15 +109,11 @@ export default function StoreLocationSection({
             const villagesData = await getVillages(subDistrictId);
 
             if (!isMounted) {
-              console.log("⚠️ Component unmounted, aborting");
               return;
             }
-
-            console.log("✅ Villages fetched:", villagesData.length, "items");
             setVillages(villagesData);
             setIsLoadingVillages(false);
 
-            // 5. If we have initial village, set it
             if (villageId && villageId > 0) {
               const villageExists = villagesData.some(
                 (v) => v.id === villageId
@@ -160,13 +122,10 @@ export default function StoreLocationSection({
               console.log("🔍 Village exists?", villageExists);
 
               if (villageExists) {
-                // ✅ Set village value IMMEDIATELY
                 setValue("village_id", String(villageId), {
                   shouldDirty: false,
                 });
-                console.log("✅ Village set:", villageId);
 
-                // Verify it was set
                 const verifyVillage = form.getValues("village_id");
                 console.log(
                   "🔍 Verify village value after setValue:",
@@ -188,11 +147,9 @@ export default function StoreLocationSection({
           console.log("ℹ️ No initial sub-district ID to set");
         }
 
-        // Mark as initialized to enable user interaction effects
         setIsInitialized(true);
         console.log("🎉 Location initialization complete!");
 
-        // Final verification
         const finalValues = {
           district: form.getValues("district_id"),
           subDistrict: form.getValues("sub_district_id"),
@@ -209,7 +166,6 @@ export default function StoreLocationSection({
       }
     };
 
-    // Only run if we have the necessary data
     if (initialSubDistrictId === undefined && initialVillageId === undefined) {
       console.log("⏸️ Waiting for initial data...");
       return;
@@ -223,32 +179,26 @@ export default function StoreLocationSection({
     };
   }, [initialSubDistrictId, initialVillageId, setValue, form]);
 
-  // ✅ Effect 2: Handle USER CHANGES to sub-district (NOT initial load)
   useEffect(() => {
-    // Skip if not initialized yet (initial load is handled above)
     if (!isInitialized) return;
 
-    // If no sub-district selected, clear villages
     if (!selectedSubDistrict) {
       setVillages([]);
-      setValue("village_id", "", { shouldDirty: true }); // Mark as dirty for user change
+      setValue("village_id", "", { shouldDirty: true });
       return;
     }
 
     const subDistrictId = Number.parseInt(selectedSubDistrict, 10);
     if (isNaN(subDistrictId)) return;
 
-    // ✅ Check if this is different from initial value (user changed it)
     const initialSubDistrictStr = initialSubDistrictId
       ? String(initialSubDistrictId)
       : "";
 
-    // If it's the same as initial, don't fetch again (already done in Effect 1)
     if (selectedSubDistrict === initialSubDistrictStr && villages.length > 0) {
       return;
     }
 
-    // This is a USER CHANGE - fetch new villages
     let isMounted = true;
 
     const fetchVillages = async () => {
@@ -259,8 +209,6 @@ export default function StoreLocationSection({
         if (!isMounted) return;
 
         setVillages(villagesData);
-
-        // Reset village selection ONLY on user change (not initial load)
         setValue("village_id", "", { shouldDirty: true });
       } catch (error) {
         console.error("Error fetching villages:", error);

@@ -42,12 +42,9 @@ export default function FormCheckbox<T extends FieldValues>({
           <FieldContent>
             <div className={cn("gap-2", className)}>
               {items.map((item) => {
-                // --- PERBAIKAN DI SINI ---
-                // Secara eksplisit beri tahu TypeScript bahwa ini adalah array string
                 const currentValue: string[] = Array.isArray(field.value)
                   ? field.value
                   : [];
-                // --- AKHIR PERBAIKAN ---
 
                 return (
                   <label
@@ -60,7 +57,6 @@ export default function FormCheckbox<T extends FieldValues>({
                         return checked
                           ? field.onChange([...currentValue, item.value])
                           : field.onChange(
-                              // 'value' di sini sekarang otomatis bertipe 'string'
                               currentValue.filter(
                                 (value) => value !== item.value
                               )

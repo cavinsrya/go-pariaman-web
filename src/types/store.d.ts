@@ -9,7 +9,7 @@ export type SocialLink = {
 };
 
 export type UserData = {
-  id: string; // UUID
+  id: string; 
   name: string;
   avatar_url?: string;
   role: string;

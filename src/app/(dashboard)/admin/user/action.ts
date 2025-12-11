@@ -6,6 +6,7 @@ import { AuthFormState } from "@/types/auth";
 import {
   createUserSchema,
   updateUserSchema,
+  changePasswordUserManagementSchema,
 } from "@/validations/auth.validation";
 
 export async function createUser(prevState: AuthFormState, formData: FormData) {
@@ -53,6 +54,7 @@ export async function createUser(prevState: AuthFormState, formData: FormData) {
     status: "success",
   };
 }
+
 export async function updateUser(prevState: AuthFormState, formData: FormData) {
   const validatedFields = updateUserSchema.safeParse({
     name: formData.get("name"),
@@ -79,6 +81,54 @@ export async function updateUser(prevState: AuthFormState, formData: FormData) {
       avatar_url: validatedFields.data.avatar_url,
     })
     .eq("id", formData.get("id"));
+
+  if (error) {
+    return {
+      status: "error",
+      errors: {
+        ...prevState.errors,
+        _form: [error.message],
+      },
+    };
+  }
+
+  return {
+    status: "success",
+  };
+}
+
+export async function changePassword(prevState: AuthFormState, formData: FormData) {
+  const validatedFields = changePasswordUserManagementSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      status: "error",
+      errors: {
+        ...validatedFields.error.flatten().fieldErrors,
+        _form: [],
+      },
+    };
+  }
+
+  if (validatedFields.data.password !== validatedFields.data.confirmPassword) {
+    return {
+      status: "error",
+      errors: {
+        confirmPassword: ["Password tidak cocok"],
+        _form: [],
+      },
+    };
+  }
+
+  const supabase = await createClient({ isAdmin: true });
+  const userId = formData.get("id") as string;
+
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    password: validatedFields.data.password,
+  });
 
   if (error) {
     return {

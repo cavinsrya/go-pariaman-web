@@ -4,13 +4,11 @@ export default function ProductCardSkeleton() {
   return (
     <Card className="overflow-hidden h-full flex flex-col p-0">
       <CardContent className="p-0">
-        {/* Image Skeleton */}
         <div className="relative w-full aspect-[4/3] bg-gray-200 animate-pulse" />
       </CardContent>
 
       <CardFooter className="flex flex-col gap-3 p-4 flex-1">
         <div className="w-full flex-1 space-y-3">
-          {/* Title Skeleton */}
           <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
 
           {/* Store Name Skeleton */}

@@ -31,7 +31,6 @@ export default function StoreInfoCard({ store }: StoreInfoCardProps) {
     <Card className="w-full p-0">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          {/* Store Logo */}
           <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 ring-1 ring-border">
             {store.logo_url ? (
               <Image
@@ -48,7 +47,6 @@ export default function StoreInfoCard({ store }: StoreInfoCardProps) {
             )}
           </div>
 
-          {/* Store Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg line-clamp-1">{store.name}</h3>
             <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
@@ -57,7 +55,6 @@ export default function StoreInfoCard({ store }: StoreInfoCardProps) {
             </div>
           </div>
 
-          {/* Visit Profile Button */}
           <Link href={`/store/${store.slug}`} className="self-center">
             <Button
               variant="outline"

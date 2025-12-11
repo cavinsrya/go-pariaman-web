@@ -34,7 +34,7 @@ export function useCatalogFilters(): UseCatalogFiltersReturn {
       setSelectedCategories((prev) =>
         checked ? [...prev, categoryId] : prev.filter((id) => id !== categoryId)
       );
-      setPage(1); // Reset to first page
+      setPage(1); 
     },
     []
   );
@@ -42,7 +42,7 @@ export function useCatalogFilters(): UseCatalogFiltersReturn {
   const handleSubDistrictChange = useCallback(
     (subDistrictId: number | null) => {
       setSelectedSubDistrict(subDistrictId);
-      setSelectedVillage(null); // Reset village when sub-district changes
+      setSelectedVillage(null); 
       setPage(1);
     },
     []

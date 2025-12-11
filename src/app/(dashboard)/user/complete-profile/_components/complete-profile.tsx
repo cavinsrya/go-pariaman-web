@@ -71,10 +71,8 @@ export default function StoreProfileForm({
     INITIAL_STATE_COMPLETE_PROFILE_USER
   );
 
-  // Track form initialization status
   const [isFormReady, setIsFormReady] = useState(false);
 
-  // Image previews
   const [avatarPreview, setAvatarPreview] = useState<Preview | undefined>(
     userData?.avatar_url
       ? { displayUrl: userData.avatar_url, file: undefined }
@@ -93,7 +91,6 @@ export default function StoreProfileForm({
       : undefined
   );
 
-  // Initialize form data
   useEffect(() => {
     if (storeData && userData) {
       console.log("🔄 Initializing form with data:", {
@@ -102,7 +99,6 @@ export default function StoreProfileForm({
         village_id: storeData.village_id,
       });
 
-      // Reset form with ALL data
       reset({
         name: storeData.name || "",
         description: storeData.description || "",
@@ -117,14 +113,12 @@ export default function StoreProfileForm({
         social_links: {},
       });
 
-      // Set social links
       socialLinks.forEach((link) => {
         if (link.platform && link.url) {
           setValue(`social_links.${link.platform}`, link.url);
         }
       });
 
-      // Update image previews
       if (storeData.logo_url) {
         setLogoPreview({ displayUrl: storeData.logo_url, file: undefined });
       }
@@ -135,17 +129,13 @@ export default function StoreProfileForm({
         setAvatarPreview({ displayUrl: userData.avatar_url, file: undefined });
       }
 
-      console.log("✅ Form initialized successfully");
-
-      // ✅ Wait a bit to ensure form values are set, then mark as ready
       setTimeout(() => {
         console.log("🎉 Form ready - rendering location component");
         setIsFormReady(true);
-      }, 100); // Small delay to ensure form state is updated
+      }, 100);
     }
   }, [storeData, userData, socialLinks, reset, setValue]);
 
-  // ✅ Effect 2: Handle action state (success/error)
   useEffect(() => {
     if (state.status === "success") {
       toast.success("Profil Toko Berhasil Diperbarui!");
@@ -161,12 +151,10 @@ export default function StoreProfileForm({
     }
   }, [state]);
 
-  // ✅ Memoized submit handler
   const onSubmit = useCallback(
     form.handleSubmit((data) => {
       const formData = new FormData();
 
-      // Append basic fields
       Object.entries(data).forEach(([key, value]) => {
         if (key === "social_links" || key === "avatar_url") return;
         if (value !== undefined && value !== null) {
@@ -174,7 +162,6 @@ export default function StoreProfileForm({
         }
       });
 
-      // Append files
       if (avatarPreview?.file) {
         formData.set("avatar_url", avatarPreview.file);
         if (userData?.avatar_url) {
@@ -196,7 +183,6 @@ export default function StoreProfileForm({
         }
       }
 
-      // Append social links
       const socialLinksFromForm = data.social_links ?? {};
       Object.entries(socialLinksFromForm).forEach(([platform, url]) => {
         const cleanUrl = String(url ?? "").trim();
@@ -223,7 +209,6 @@ export default function StoreProfileForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      {/* Logo & Cover Section */}
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Logo & Foto Sampul</CardTitle>
@@ -263,7 +248,6 @@ export default function StoreProfileForm({
         </CardContent>
       </Card>
 
-      {/* Store Info Section */}
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Informasi Toko</CardTitle>
@@ -303,7 +287,6 @@ export default function StoreProfileForm({
         </CardContent>
       </Card>
 
-      {/* Location & Social Section */}
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Lokasi & Media Sosial</CardTitle>
@@ -313,7 +296,6 @@ export default function StoreProfileForm({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Location Section - Wait until form is ready */}
             {isFormReady && storeData ? (
               <StoreLocationSection
                 form={form}
@@ -338,7 +320,6 @@ export default function StoreProfileForm({
               </div>
             )}
 
-            {/* Social Links Section */}
             <StoreSocialSection form={form} />
           </div>
 
@@ -355,7 +336,6 @@ export default function StoreProfileForm({
         </CardContent>
       </Card>
 
-      {/* Error Display */}
       {state.errors?._form && state.errors._form.length > 0 && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
           {state.errors._form[0]}

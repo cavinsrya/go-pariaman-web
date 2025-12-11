@@ -26,7 +26,6 @@ function FormProduct<T extends FieldValues>({
   existingMedia,
   onDeleteExistingMedia,
 }: FormProductProps<T>) {
-  // Transform categories untuk FormCheckbox
   const categoryItems = categories.map((category) => ({
     value: category.id.toString(),
     label: category.name,
@@ -44,7 +43,6 @@ function FormProduct<T extends FieldValues>({
       </DialogHeader>
 
       <form onSubmit={onSubmit} className="space-y-4">
-        {/* Basic Information Section */}
         <FormInput
           form={form}
           name={"title" as Path<T>}
@@ -61,7 +59,6 @@ function FormProduct<T extends FieldValues>({
           cols={5}
         />
 
-        {/* Categories Section */}
         <FormCheckbox
           form={form}
           name={"category_ids" as Path<T>}
@@ -70,7 +67,6 @@ function FormProduct<T extends FieldValues>({
           className="grid grid-cols-2 gap-2"
         />
 
-        {/* Price Section */}
         <FormInput
           form={form}
           name={"price" as Path<T>}
@@ -79,7 +75,6 @@ function FormProduct<T extends FieldValues>({
           type="number"
         />
 
-        {/* Media Upload Section */}
         <FormMediaUpload
           label="Media (Foto/Video)"
           maxFiles={5}
@@ -88,7 +83,6 @@ function FormProduct<T extends FieldValues>({
           onFilesChange={onMediaChange}
         />
 
-        {/* Action Buttons */}
         <DialogFooter className="flex gap-2">
           <DialogClose asChild className="flex-1">
             <Button variant="outline" className="w-full" disabled={isLoading}>

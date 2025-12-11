@@ -23,7 +23,6 @@ export default function CatalogPagination({
     const pages = [];
 
     for (let i = 1; i <= totalPages; i++) {
-      // Always show first page, last page, and pages around current page
       if (
         i === 1 ||
         i === totalPages ||
@@ -44,7 +43,6 @@ export default function CatalogPagination({
         (i === 2 && currentPage > 3) ||
         (i === totalPages - 1 && currentPage < totalPages - 2)
       ) {
-        // Show ellipsis
         pages.push(
           <PaginationItem key={`ellipsis-${i}`}>
             <PaginationEllipsis />
@@ -60,7 +58,6 @@ export default function CatalogPagination({
     <div className="flex justify-center">
       <Pagination>
         <PaginationContent>
-          {/* Previous Button */}
           {currentPage > 1 && (
             <PaginationItem>
               <PaginationPrevious
@@ -70,10 +67,8 @@ export default function CatalogPagination({
             </PaginationItem>
           )}
 
-          {/* Page Numbers */}
           {renderPageNumbers()}
 
-          {/* Next Button */}
           {currentPage < totalPages && (
             <PaginationItem>
               <PaginationNext

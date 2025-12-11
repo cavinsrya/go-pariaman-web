@@ -56,7 +56,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
   const handleVideoPlay = () => setIsPlaying(true);
   const handleVideoPause = () => setIsPlaying(false);
 
-  // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowLeft") {
       handlePrev();
@@ -67,7 +66,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
 
   return (
     <div className="space-y-4" onKeyDown={handleKeyDown} tabIndex={0}>
-      {/* Main Media Display */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl ring-1 ring-border">
         {isVideo ? (
           <>
@@ -82,7 +80,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               onEnded={handleVideoPause}
             />
 
-            {/* Play/Pause Button Overlay - Hide when playing */}
             {!isPlaying && (
               <button
                 onClick={handlePlayPause}
@@ -95,7 +92,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               </button>
             )}
 
-            {/* Pause Button - Show when playing */}
             {isPlaying && (
               <button
                 onClick={handlePlayPause}
@@ -117,7 +113,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
           />
         )}
 
-        {/* Navigation Arrows */}
         {sortedMedia.length > 1 && (
           <>
             <Button
@@ -139,7 +134,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               <ChevronRight className="w-5 h-5" />
             </Button>
 
-            {/* Media Counter */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1 rounded-full z-10">
               {currentIndex + 1} / {sortedMedia.length}
             </div>
@@ -147,7 +141,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
         )}
       </div>
 
-      {/* Thumbnail Gallery */}
       {sortedMedia.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
           {sortedMedia.map((item, index) => (

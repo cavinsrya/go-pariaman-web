@@ -55,10 +55,8 @@ export default function DialogCreateProduct({
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
-  // ✅ Optimized: Use useCallback for stable reference
   const handleMediaChange = useCallback(
     (files: File[]) => {
-      // ✅ Fixed: Proper type assertion (no 'any')
       form.setValue("media", files, { shouldValidate: true });
       setMediaFiles(files);
     },
@@ -103,7 +101,6 @@ export default function DialogCreateProduct({
       form.reset();
       setMediaFiles([]);
 
-      // ✅ Better dialog closing - find and click the close button
       const closeButton = document.querySelector<HTMLButtonElement>(
         '[role="dialog"] button[aria-label="Close"]'
       );

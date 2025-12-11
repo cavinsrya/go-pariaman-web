@@ -5,7 +5,7 @@ export const PRODUCT_MEDIA_TYPES = {
   video: ["video/mp4", "video/webm", "video/ogg"],
 };
 
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; 
 export const MAX_MEDIA_COUNT = 5;
 
 export const INITIAL_STATE_DELETE_PRODUCT: ProductFormState = {

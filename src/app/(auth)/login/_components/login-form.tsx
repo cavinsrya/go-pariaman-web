@@ -64,7 +64,6 @@ export default function SignInForm() {
         {/* Right side form */}
         <div className="w-full p-8 lg:w-1/2">
           <div className="space-y-3">
-            {/* Header: tombol kembali kiri, logo tetap di tengah */}
             <div className="relative flex items-center justify-center">
               <div className="absolute left-0">
                 <Button
@@ -137,7 +136,6 @@ export default function SignInForm() {
             </div>
           </form>
 
-          {/* Footer small link */}
           <div className="mt-4 flex items-center justify-between">
             <span className="border-b w-1/5 md:w-1/4" />
             <span className="text-xs text-gray-500 uppercase">Daftar</span>

@@ -5,6 +5,10 @@ import ProdukUmkmSection from "../_components/product-umkm-section";
 import UmkmDesaSection from "../_components/umkm-desa-section";
 import { getFeaturedProducts, getFeaturedStores } from "./action";
 
+export const metadata = {
+  title: "UMKM Pariaman | Beranda",
+};
+
 export default async function Home() {
   const [storesData, productsData] = await Promise.all([
     getFeaturedStores(),
