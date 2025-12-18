@@ -78,7 +78,6 @@ export async function updateUser(prevState: AuthFormState, formData: FormData) {
     .update({
       name: validatedFields.data.name,
       role: validatedFields.data.role,
-      avatar_url: validatedFields.data.avatar_url,
     })
     .eq("id", formData.get("id"));
 
@@ -147,21 +146,6 @@ export async function changePassword(prevState: AuthFormState, formData: FormDat
 
 export async function deleteUser(prevState: AuthFormState, formData: FormData) {
   const supabase = await createClient({ isAdmin: true });
-  const image = formData.get("avatar_url") as string;
-  const { status, errors } = await deleteFile(
-    "images",
-    image.split("/images/")[1]
-  );
-
-  if (status === "error") {
-    return {
-      status: "error",
-      errors: {
-        ...prevState.errors,
-        _form: [errors?._form?.[0] ?? "Unknown error"],
-      },
-    };
-  }
 
   const { error } = await supabase.auth.admin.deleteUser(
     formData.get("id") as string

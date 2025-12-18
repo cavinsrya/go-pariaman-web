@@ -56,8 +56,8 @@ export const Footer: React.FC = () => {
         <div className="border-t mt-12">
           <div className="container mx-auto px-4 py-6 text-center">
             <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} Go Pariaman. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} Go Pariaman. Developed by BINUS
+              University 2025
             </p>
           </div>
         </div>
